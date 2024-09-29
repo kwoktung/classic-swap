@@ -1,0 +1,21 @@
+{
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "explicit"
+    },
+    "eslint.run": "onSave",
+    "cSpell.words": [
+        "arbitrum",
+        "bignumber",
+        "Dfyn",
+        "heco",
+        "Keccak",
+        "multicall",
+        "oneinch",
+        "Streamable",
+        "tanstack",
+        "viem",
+        "Wagmi",
+        "WMATIC",
+        "zerox"
+    ],
+}
