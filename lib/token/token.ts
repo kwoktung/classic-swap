@@ -1,7 +1,7 @@
 import { Address, getContract, PublicClient } from "viem";
 import { erc20Abi } from "viem";
 
-import { isNativeToken } from "@/lib/address";
+import { isNativeToken, nativeAddress } from "@/lib/address";
 import { Token } from "@/types/base";
 
 export class TokenService {
@@ -42,9 +42,10 @@ export class TokenService {
     accountAddress: Address;
   }): Promise<Record<string, string>> {
     const { tokenAddresses, accountAddress } = params;
+    const addresses = tokenAddresses.filter((o) => !isNativeToken(o));
 
     const result = await this.client.multicall({
-      contracts: tokenAddresses.map((_address) => {
+      contracts: addresses.map((_address) => {
         return {
           abi: erc20Abi,
           address: _address as Address,
@@ -55,17 +56,18 @@ export class TokenService {
     });
 
     const balances: Record<string, string> = {};
-    for (let i = 0; i < tokenAddresses.length; i += 1) {
-      const tokenAddress = tokenAddresses[i];
+    for (let i = 0; i < addresses.length; i += 1) {
+      const address = addresses[i];
       const data = result[i];
       if (data.status === "success") {
-        balances[tokenAddress] = data.result.toString();
+        balances[address] = data.result.toString();
       }
     }
     const ethBalance = await this.client.getBalance({
-      address: accountAddress as Address,
+      address: accountAddress,
     });
-    balances["main"] = ethBalance.toString();
+
+    balances[nativeAddress] = ethBalance.toString();
     return balances;
   }
 }

@@ -1,5 +1,4 @@
-import { BigNumber } from "bignumber.js";
-import { fromPairs } from "lodash";
+import qs from "qs";
 import { isAddress } from "viem";
 import { z } from "zod";
 
@@ -32,10 +31,8 @@ const handleRequest = async (data: z.infer<typeof schema>) => {
 };
 
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const validate = schema.safeParse(
-    fromPairs(Array.from(searchParams.entries())),
-  );
+  const { search } = new URL(request.url);
+  const validate = schema.safeParse(qs.parse(search.slice(1)));
 
   if (validate.error) {
     const issue = validate.error.issues[0];

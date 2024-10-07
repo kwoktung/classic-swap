@@ -1,7 +1,6 @@
-import BigNumber from "bignumber.js";
-
 import { InteractiveInput } from "@/components/interactive-elements";
 import { Button } from "@/components/ui/button";
+import { formatBalance } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Token } from "@/types/base";
 
@@ -57,7 +56,7 @@ export const TokenInput = ({
               className="text-secondary-foreground"
               onClick={onMax}
             >
-              Balance: {BigNumber(balance).decimalPlaces(6).toFixed()}
+              Balance: {formatBalance(balance)}
             </Button>
           ) : null}
         </div>
