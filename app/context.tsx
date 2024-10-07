@@ -94,9 +94,13 @@ export const useDeriveState = () => {
         buyAmount: "",
       };
     },
-    staleTime: 0,
+    staleTime: 5 * 1000,
+    gcTime: 5 * 1000,
   });
-  return { loading: result.isLoading, data: result.data };
+  return {
+    loading: result.isFetching,
+    data: result.data,
+  };
 };
 
 export const useSwapActions = () => {

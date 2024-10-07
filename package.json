@@ -1,12 +1,12 @@
 {
-  "name": "oh-my-swap",
+  "name": "next-swap",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev -p 5555",
     "build": "next build",
     "start": "next start",
-    "lint": "tsc --noEmit &&next lint"
+    "lint": "tsc --noEmit && next lint"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.1",

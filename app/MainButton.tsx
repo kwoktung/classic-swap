@@ -45,7 +45,7 @@ const StateStateButton = () => {
     isInsufficientBalance
   ) {
     return (
-      <Button size={"lg"} disabled={isNotDstAmount || isInsufficientBalance}>
+      <Button size={"lg"} disabled>
         {deriveState.loading ? (
           <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
         ) : (
