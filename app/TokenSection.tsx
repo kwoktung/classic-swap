@@ -36,10 +36,11 @@ export const SellSection = () => {
 export const BuySection = () => {
   const { buyToken } = useSwapState();
   const { setBuyToken } = useSwapActions();
-  const { data } = useDeriveState();
+  const { data, loading } = useDeriveState();
   return (
     <TokenInput
       disabled
+      isLoading={loading}
       label="BUY"
       token={buyToken}
       onTokenSelect={setBuyToken}

@@ -24,7 +24,7 @@ export type BuildTransactionResponse = {
   tx: EVMTransaction;
 };
 
-export interface LiquidityClient {
+export interface LiquiditySource {
   getPrice(args: GetPriceArgs): Promise<GetPriceResponse>;
   buildTransaction(
     args: BuildTransactionArgs,

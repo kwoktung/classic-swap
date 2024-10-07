@@ -16,7 +16,7 @@ import type {
   BuildTransactionResponse,
   GetPriceArgs,
   GetPriceResponse,
-  LiquidityClient,
+  LiquiditySource,
 } from "../types";
 import { PairAbi } from "./abis/Pair";
 import { RouterAbi } from "./abis/Router02";
@@ -70,7 +70,7 @@ class UniswapV2Pool {
   }
 }
 
-export class UniswapV2Client implements LiquidityClient {
+export class UniswapV2Client implements LiquiditySource {
   readonly routerAddress: Address;
   readonly weth9Address: Address;
 

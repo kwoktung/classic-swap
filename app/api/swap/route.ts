@@ -1,7 +1,5 @@
 import { BigNumber } from "bignumber.js";
-import { error } from "console";
 import { fromPairs } from "lodash";
-import type { Address } from "viem";
 import { isAddress } from "viem";
 import { z } from "zod";
 
@@ -19,6 +17,20 @@ const schema = z.object({
   to: z.string().refine((val) => isAddress(val)),
 });
 
+const handleRequest = async (data: z.infer<typeof schema>) => {
+  const { src, dst, amount, to } = data;
+  const client = createClient();
+  const uniswapV2Service = createUniswapService({ client });
+  const result = await uniswapV2Service.buildTransaction({
+    src,
+    dst,
+    amount,
+    to,
+    slippage: 1,
+  });
+  return result;
+};
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const validate = schema.safeParse(
@@ -33,21 +45,10 @@ export async function GET(request: Request) {
     return Response.json({ error: message }, { status: 401 });
   }
 
-  const { src, dst, amount, to } = validate.data;
-  const client = createClient();
-  const uniswapV2Service = createUniswapService({ client });
-
-  const result = await uniswapV2Service.buildTransaction({
-    src,
-    dst,
-    amount,
-    to,
-    slippage: 1,
-  });
-
-  if (!result) {
-    return Response.json({ error: "failed to find out route path" });
+  try {
+    const resp = await handleRequest(validate.data);
+    return Response.json(resp);
+  } catch (e) {
+    return Response.json({ message: (e as Error).message }, { status: 500 });
   }
-
-  return Response.json(result);
 }

@@ -34,27 +34,29 @@ const TokenList = ({
     return null;
   }
   return (
-    <div className="mt-6 space-y-4 max-h-[300px] overflow-y-auto">
+    <div className="space-y-4 max-h-[300px] overflow-y-auto">
       {result.data.map((token) => (
         <InteractiveDiv
           key={token.symbol}
           onClick={() => onTokenSelect?.(token)}
         >
-          <div className="flex items-center justify-between p-4 bg-white rounded-lg shadow">
+          <div className="flex items-center justify-between p-4 bg-accent rounded-lg shadow">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 rounded-full overflow-hidden">
+              <div className="w-10 h-10 rounded-full overflow-hidden">
                 <img
-                  className="w-8 h-8 rounded-full"
+                  className="w-full h-full rounded-full"
                   src={token.logoURI ?? ""}
                   alt={token.name}
                 />
               </div>
               <div>
-                <h3 className="font-semibold text-gray-800">{token.name}</h3>
-                <p className="text-sm text-gray-500">{token.symbol}</p>
+                <h3 className="font-semibold text-accent-foreground">
+                  {token.name}
+                </h3>
+                <p className="text-sm text-accent-foreground">{token.symbol}</p>
               </div>
             </div>
-            <span className="text-sm font-medium text-gray-600">$1</span>
+            <span className="text-sm font-medium text-accent-foreground"></span>
           </div>
         </InteractiveDiv>
       ))}

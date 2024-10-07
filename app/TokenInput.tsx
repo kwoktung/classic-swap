@@ -2,6 +2,7 @@ import BigNumber from "bignumber.js";
 
 import { InteractiveInput } from "@/components/interactive-elements";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { Token } from "@/types/base";
 
 import { TokenSelector } from "./TokenSelector";
@@ -11,6 +12,7 @@ type TokenInputProps = {
   amount?: string;
   onAmountChange?: (value: string) => void;
   disabled?: boolean;
+  isLoading?: boolean;
   token?: Token;
   onTokenSelect?: (token: Token) => void;
   balance?: string;
@@ -22,13 +24,15 @@ export const TokenInput = ({
   token,
   onTokenSelect,
   disabled,
+  isLoading,
   amount,
   onAmountChange,
   balance,
   onMax,
 }: TokenInputProps) => {
   return (
-    <div className="relative">
+    <div className={cn("relative", isLoading ? "opacity-80" : "opacity-100")}>
+      {isLoading ? <div className="absolute w-full h-full"></div> : null}
       <div className="rounded-lg p-4 bg-secondary">
         <div className="flex flex-row justify-between">
           <span className="text-sm text-secondary-foreground">{label}</span>

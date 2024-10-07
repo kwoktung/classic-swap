@@ -80,7 +80,11 @@ export const MainButton = () => {
     return <Button className="lg">Not Connected</Button>;
   }
   if (!account.chain) {
-    return <Button size="lg">Not Support Chain</Button>;
+    return (
+      <Button disabled size="lg">
+        Not Support Chain
+      </Button>
+    );
   }
   return <StateStateButton />;
 };

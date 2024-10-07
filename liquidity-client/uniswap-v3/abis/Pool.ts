@@ -1,4 +1,4 @@
-export const UniswapV3PoolABI = [
+export const PoolABI = [
   {
     inputs: [],
     stateMutability: "nonpayable",

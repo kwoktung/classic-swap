@@ -1,16 +1,15 @@
+import { isNativeToken } from "@/lib/address";
 import { assets } from "@/lib/assets";
 
 import { SwapContextProvider } from "./context";
-import { BuySection, SellSection } from "./InputSection";
 import { MainButton } from "./MainButton";
 import { SwitchTokens } from "./SwitchTokens";
 import { ThemeToggle } from "./ThemeButton";
+import { BuySection, SellSection } from "./TokenSection";
 import { WalletConnect } from "./WalletButton";
 
 export default async function Home() {
-  const sellToken = assets.find(
-    (o) => o.address === "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-  );
+  const sellToken = assets.find((o) => isNativeToken(o.address));
   const buyToken = assets.find(
     (o) => o.address === "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
   );

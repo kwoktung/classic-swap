@@ -1,7 +1,7 @@
 import { BigNumber } from "bignumber.js";
 import { fromPairs } from "lodash";
 import { isAddress } from "viem";
-import { z } from "zod";
+import { unknown, z } from "zod";
 
 const schema = z.object({
   src: z.string().refine((val) => isAddress(val)),
@@ -16,21 +16,8 @@ import {
   createUniswapV3Service,
 } from "../shared";
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const validate = schema.safeParse(
-    fromPairs(Array.from(searchParams.entries())),
-  );
-
-  if (validate.error) {
-    const issue = validate.error.issues[0];
-    const message = issue
-      ? `[${issue.path.join(",")}] ${issue.message}`
-      : "Invalid params";
-    return Response.json({ error: message }, { status: 400 });
-  }
-
-  const { src, dst, amount } = validate.data;
+const handleRequest = async (data: z.infer<typeof schema>) => {
+  const { src, dst, amount } = data;
   const client = createClient();
   const uniswapV2Service = createUniswapService({ client });
   const tokenService = createTokenService({ client });
@@ -61,5 +48,27 @@ export async function GET(request: Request) {
     allowanceTarget: uniswapV2Service.routerAddress,
   };
 
-  return Response.json(resp);
+  return resp;
+};
+
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const validate = schema.safeParse(
+    fromPairs(Array.from(searchParams.entries())),
+  );
+
+  if (validate.error) {
+    const issue = validate.error.issues[0];
+    const message = issue
+      ? `[${issue.path.join(",")}] ${issue.message}`
+      : "Invalid params";
+    return Response.json({ error: message }, { status: 400 });
+  }
+
+  try {
+    const result = await handleRequest(validate.data);
+    return Response.json(result);
+  } catch (e: unknown) {
+    return Response.json({ message: (e as Error).message }, { status: 500 });
+  }
 }

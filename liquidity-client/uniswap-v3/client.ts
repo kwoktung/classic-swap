@@ -20,11 +20,11 @@ import {
   BuildTransactionResponse,
   GetPriceArgs,
   GetPriceResponse,
-  LiquidityClient,
+  LiquiditySource,
 } from "../types";
+import { PoolABI } from "./abis/Pool";
 import { QuoterABI } from "./abis/Quoter";
 import { SwapRouterABI } from "./abis/SwapRouter";
-import { UniswapV3PoolABI } from "./abis/UniswapV3Pool";
 import { UniswapV3Pair } from "./types";
 
 type UniswapV3Solution = {
@@ -33,7 +33,7 @@ type UniswapV3Solution = {
   amountOut: string;
 };
 
-export class UniswapV3Client implements LiquidityClient {
+export class UniswapV3Client implements LiquiditySource {
   readonly routerAddress: Address;
   readonly weth9Address: Address;
   private quoterAddress: Address;
@@ -118,7 +118,7 @@ export class UniswapV3Client implements LiquidityClient {
       contracts: pairs.map(
         (o) =>
           ({
-            abi: UniswapV3PoolABI,
+            abi: PoolABI,
             address: o.address as Address,
             functionName: "liquidity",
             args: [],
