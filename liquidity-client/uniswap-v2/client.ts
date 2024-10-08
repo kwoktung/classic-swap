@@ -28,58 +28,25 @@ type UniswapV2Path = {
   amountOut: string;
 };
 
-class UniswapV2Pool {
-  readonly token0: string;
-  readonly token1: string;
-  private address: string;
-
-  public reserve0: string;
-  public reserve1: string;
-
-  constructor(props: {
-    token0: string;
-    token1: string;
-    address: string;
-
-    reserve0: string;
-    reserve1: string;
-  }) {
-    this.token0 = props.token0;
-    this.token1 = props.token1;
-    this.address = props.address;
-    this.reserve0 = props.reserve0;
-    this.reserve1 = props.reserve1;
-  }
-
-  getAmountOut(
-    amountIn: string,
-    tokenIn: string,
-  ): { address: string; amountOut: string } {
-    const { reserve0, reserve1, token0, token1 } = this;
-    const [reserveIn, reserveOut] =
-      tokenIn === token0 ? [reserve0, reserve1] : [reserve1, reserve0];
-
-    const amountInWithFee = BigNumber(amountIn).multipliedBy(997);
-    const numerator = BigNumber(amountInWithFee).multipliedBy(reserveOut);
-    const denominator = BigNumber(reserveIn)
-      .multipliedBy(1000)
-      .plus(amountInWithFee);
-    return {
-      amountOut: numerator.div(denominator).toFixed(0),
-      address: tokenIn === token0 ? token1 : token0,
-    };
-  }
-}
+type UniswapV2Pool = {
+  token0: string;
+  token1: string;
+  address: string;
+  reserve0: string;
+  reserve1: string;
+};
 
 export class UniswapV2Client implements LiquidityProvider {
   name: LiquidityProviderName = "UniswapV2";
   readonly routerAddress: Address;
   readonly weth9Address: Address;
 
-  private basePairs: Address[];
+  private baseAddresses: Address[];
+
   private providerConfig: UniswapV2ProviderConfig[];
 
   private client: PublicClient;
+
   constructor(props: {
     routerAddress: Address;
 
@@ -92,7 +59,7 @@ export class UniswapV2Client implements LiquidityProvider {
     this.weth9Address = props.weth9Address;
     this.providerConfig = props.providerConfig;
 
-    this.basePairs = props.basePairs;
+    this.baseAddresses = props.basePairs;
     this.client = props.client;
   }
 
@@ -127,7 +94,7 @@ export class UniswapV2Client implements LiquidityProvider {
     srcToken: Address;
     dstToken: Address;
   }): [Address, Address][] {
-    const bases = this.basePairs.map((o) => o);
+    const bases = this.baseAddresses;
     const basePairs: [Address, Address][] = bases
       .flatMap((address, _, array) =>
         array.map(
@@ -142,6 +109,30 @@ export class UniswapV2Client implements LiquidityProvider {
       ...basePairs,
     ];
     return tokens;
+  }
+
+  private getAmountOut({
+    tokenIn,
+    amountIn,
+    pool,
+  }: {
+    amountIn: string;
+    tokenIn: string;
+    pool: UniswapV2Pool;
+  }) {
+    const { reserve0, reserve1, token0, token1 } = pool;
+    const [reserveIn, reserveOut] =
+      tokenIn === token0 ? [reserve0, reserve1] : [reserve1, reserve0];
+
+    const amountInWithFee = BigNumber(amountIn).multipliedBy(997);
+    const numerator = BigNumber(amountInWithFee).multipliedBy(reserveOut);
+    const denominator = BigNumber(reserveIn)
+      .multipliedBy(1000)
+      .plus(amountInWithFee);
+    return {
+      amountOut: numerator.div(denominator).toFixed(0),
+      address: tokenIn === token0 ? token1 : token0,
+    };
   }
 
   private async getAvailablePools(
@@ -164,15 +155,14 @@ export class UniswapV2Client implements LiquidityProvider {
       const data = reservesResp[i];
       if (data.status === "success") {
         const result = data.result;
-        pools.push(
-          new UniswapV2Pool({
-            token0: pair.token0,
-            token1: pair.token1,
-            address: pair.address,
-            reserve0: BigNumber(Number(result[0])).toFixed(0),
-            reserve1: BigNumber(Number(result[1])).toFixed(0),
-          }),
-        );
+        const pool: UniswapV2Pool = {
+          token0: pair.token0,
+          token1: pair.token1,
+          address: pair.address,
+          reserve0: BigNumber(Number(result[0])).toFixed(0),
+          reserve1: BigNumber(Number(result[1])).toFixed(0),
+        };
+        pools.push(pool);
       }
     }
     return pools;
@@ -201,7 +191,11 @@ export class UniswapV2Client implements LiquidityProvider {
         BigNumber(pool.reserve1).isZero()
       )
         continue;
-      const { address, amountOut } = pool.getAmountOut(amountIn, tokenIn);
+      const { address, amountOut } = this.getAmountOut({
+        amountIn,
+        tokenIn,
+        pool,
+      });
       if (address === tokenOut) {
         result.push({ pools: currentPools.concat(pool), amountOut });
       } else if (currentPools.length <= 3) {
@@ -218,14 +212,14 @@ export class UniswapV2Client implements LiquidityProvider {
     }
   }
 
-  private encodePoolsToPath(pools: UniswapV2Pool[], tokenIn: string): string[] {
+  private encodePaths(pools: UniswapV2Pool[], tokenIn: string): string[] {
     const paths = pools.reduce(
-      (acc, cur) => {
-        const current = acc[0];
-        if (current !== cur.token0) {
-          return acc.concat(cur.token0);
-        } else if (current !== cur.token1) {
-          return acc.concat(cur.token1);
+      (result, pool) => {
+        const current = result[0];
+        if (current !== pool.token0) {
+          return result.concat(pool.token0);
+        } else if (current !== pool.token1) {
+          return result.concat(pool.token1);
         } else {
           throw new Error("invalid path");
         }
@@ -285,7 +279,7 @@ export class UniswapV2Client implements LiquidityProvider {
       }
     });
 
-    const paths = this.encodePoolsToPath(result[0].pools, src);
+    const paths = this.encodePaths(result[0].pools, src);
 
     return {
       amountOut: result[0].amountOut,
