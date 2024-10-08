@@ -2,11 +2,11 @@ import { isNativeToken } from "@/lib/address";
 import { assets } from "@/lib/assets";
 
 import { SwapContextProvider } from "./context";
-import { MainButton } from "./MainButton";
-import { SwitchTokens } from "./SwitchTokens";
-import { ThemeToggle } from "./ThemeButton";
-import { BuySection, SellSection } from "./TokenSection";
-import { WalletConnect } from "./WalletButton";
+import { MainButton } from "./main-button";
+import { ThemeToggle } from "./theme-toggle";
+import { BuySection, SellSection } from "./token-section";
+import { TokenSwitch } from "./token-switch";
+import { WalletConnect } from "./wallet-button";
 
 export default async function Home() {
   const sellToken = assets.find((o) => isNativeToken(o.address));
@@ -28,7 +28,7 @@ export default async function Home() {
             <SellSection />
             <div className="h-2"></div>
             <div className="flex flex-row justify-center items-center rounded-full">
-              <SwitchTokens />
+              <TokenSwitch />
             </div>
             <div className="h-2"></div>
             <BuySection />

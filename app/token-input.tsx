@@ -4,7 +4,7 @@ import { formatNumber } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Token } from "@/types/base";
 
-import { TokenSelector } from "./TokenSelector";
+import { TokenSelector } from "./token-selector";
 
 type TokenInputProps = {
   label: string;

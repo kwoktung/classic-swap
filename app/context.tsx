@@ -87,12 +87,14 @@ export const useDeriveState = () => {
         buyAmount: "",
       };
     },
+    retry: 3,
     staleTime: 5 * 1000,
     gcTime: 5 * 1000,
   });
   return {
     loading: result.isFetching,
     data: result.data,
+    error: result.error,
   };
 };
 

@@ -29,7 +29,11 @@ export const WalletConnect = () => {
     );
   }
   return (
-    <Button size="lg" onClick={() => connect({ connector: connectors[0] })}>
+    <Button
+      variant={"outline"}
+      size="lg"
+      onClick={() => connect({ connector: connectors[0] })}
+    >
       Connect Wallet
     </Button>
   );

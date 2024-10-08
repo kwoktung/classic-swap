@@ -5,7 +5,7 @@ import { useAccount, useBalance } from "wagmi";
 import { isNativeToken } from "@/lib/address";
 
 import { useDeriveState, useSwapActions, useSwapState } from "./context";
-import { TokenInput } from "./TokenInput";
+import { TokenInput } from "./token-input";
 
 export const SellSection = () => {
   const { sellToken, amount } = useSwapState();

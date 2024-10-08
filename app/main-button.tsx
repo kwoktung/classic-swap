@@ -8,14 +8,14 @@ import { Button } from "@/components/ui/button";
 import { isNativeToken } from "@/lib/address";
 
 import { useDeriveState, useSwapState } from "./context";
-import { useSwapCallback } from "./useSwapCallback";
+import { useSwapCallback } from "./use-swap";
 
-const StateStateButton = () => {
+const SwapStateButton = () => {
   const account = useAccount();
   const { sellToken, amount } = useSwapState();
   const deriveState = useDeriveState();
 
-  const balanceResp = useBalance({
+  const balance = useBalance({
     address: account.address,
     token:
       sellToken && sellToken?.address && !isNativeToken(sellToken.address)
@@ -24,12 +24,13 @@ const StateStateButton = () => {
   });
 
   const isInsufficientBalance = useMemo(() => {
-    if (balanceResp.status === "success" && amount && sellToken) {
+    if (balance.status === "success" && amount && sellToken) {
       return BigNumber(amount)
         .shiftedBy(sellToken.decimals)
-        .gt(Number(balanceResp.data.value));
+        .gt(Number(balance.data.value));
     }
-  }, [balanceResp, amount, sellToken]);
+  }, [balance, amount, sellToken]);
+
   let buttonText: string = "Swap";
 
   if (isInsufficientBalance) {
@@ -86,5 +87,5 @@ export const MainButton = () => {
       </Button>
     );
   }
-  return <StateStateButton />;
+  return <SwapStateButton />;
 };
