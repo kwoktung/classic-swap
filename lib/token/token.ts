@@ -60,7 +60,7 @@ export class TokenService {
       const address = addresses[i];
       const data = result[i];
       if (data.status === "success") {
-        balances[address] = data.result.toString();
+        balances[address.toLowerCase()] = data.result.toString();
       }
     }
     const ethBalance = await this.client.getBalance({

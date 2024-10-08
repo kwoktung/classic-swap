@@ -1,6 +1,12 @@
 import BigNumber from "bignumber.js";
 
-export const formatBalance = (value?: string) => {
+export const formatNumber = ({
+  value,
+  decimalPlaces = 6,
+}: {
+  value?: string;
+  decimalPlaces?: number;
+}) => {
   if (!value) return "";
-  return BigNumber(value).decimalPlaces(6).toFixed();
+  return BigNumber(value).decimalPlaces(decimalPlaces).toFixed();
 };

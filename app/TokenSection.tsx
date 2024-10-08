@@ -36,6 +36,14 @@ export const SellSection = () => {
 export const BuySection = () => {
   const { buyToken } = useSwapState();
   const { setBuyToken } = useSwapActions();
+  const account = useAccount();
+  const balanceResult = useBalance({
+    address: account.address,
+    token:
+      buyToken && !isNativeToken(buyToken.address)
+        ? buyToken.address
+        : undefined,
+  });
   const { data, loading } = useDeriveState();
   return (
     <TokenInput
@@ -44,6 +52,7 @@ export const BuySection = () => {
       label="BUY"
       token={buyToken}
       onTokenSelect={setBuyToken}
+      balance={balanceResult.data?.formatted}
       amount={data?.buyAmount}
     ></TokenInput>
   );

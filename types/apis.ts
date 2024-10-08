@@ -7,3 +7,7 @@ export type APITokensResponse = {
 export type APIBalanceResponse = {
   balances: Record<string, string>;
 };
+
+export type APIPriceResponse = {
+  prices: Record<string, string>;
+};

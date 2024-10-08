@@ -1,6 +1,6 @@
 import { InteractiveInput } from "@/components/interactive-elements";
 import { Button } from "@/components/ui/button";
-import { formatBalance } from "@/lib/format";
+import { formatNumber } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Token } from "@/types/base";
 
@@ -56,7 +56,7 @@ export const TokenInput = ({
               className="text-secondary-foreground"
               onClick={onMax}
             >
-              Balance: {formatBalance(balance)}
+              Balance: {formatNumber({ value: balance, decimalPlaces: 4 })}
             </Button>
           ) : null}
         </div>
