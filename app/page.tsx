@@ -11,7 +11,7 @@ import { WalletConnect } from "./WalletButton";
 export default async function Home() {
   const sellToken = assets.find((o) => isNativeToken(o.address));
   const buyToken = assets.find(
-    (o) => o.address === "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+    (o) => o.address === "0x3c499c542cef5e3811e1192ce70d8cc03d5c3359",
   );
   return (
     <SwapContextProvider sellToken={sellToken} buyToken={buyToken}>
