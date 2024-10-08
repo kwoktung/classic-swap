@@ -20,7 +20,8 @@ import {
   BuildTransactionResponse,
   GetPriceArgs,
   GetPriceResponse,
-  LiquiditySource,
+  LiquidityProvider,
+  LiquidityProviderName,
 } from "../types";
 import { PoolABI } from "./abis/Pool";
 import { QuoterABI } from "./abis/Quoter";
@@ -33,7 +34,9 @@ type UniswapV3Solution = {
   amountOut: string;
 };
 
-export class UniswapV3Client implements LiquiditySource {
+export class UniswapV3Client implements LiquidityProvider {
+  name: LiquidityProviderName = "UniswapV3";
+
   readonly routerAddress: Address;
   readonly weth9Address: Address;
   private quoterAddress: Address;
@@ -296,7 +299,7 @@ export class UniswapV3Client implements LiquiditySource {
     const path = this.encodeRouteToPath(pools, firstToken);
     const callbacks: Hex[] = [];
 
-    const mainHex = encodeFunctionData({
+    const swapHex = encodeFunctionData({
       abi: SwapRouterABI,
       functionName: "exactInput",
       args: [
@@ -309,7 +312,7 @@ export class UniswapV3Client implements LiquiditySource {
       ],
     });
 
-    callbacks.push(mainHex);
+    callbacks.push(swapHex);
 
     if (isNativeToken(dst)) {
       callbacks.push(
@@ -335,14 +338,13 @@ export class UniswapV3Client implements LiquiditySource {
       args: [callbacks],
     });
 
-    console.log("callbacks", callbacks);
-
     return {
       tx: {
         data: data,
         to: this.routerAddress,
         value: isNativeToken(src) ? toHex(BigInt(amount)) : "0x0",
       },
+      dstAmount: amountOut,
     };
   }
 }

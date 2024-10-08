@@ -1,14 +1,7 @@
 "use client";
 import { useQuery } from "@tanstack/react-query";
 import BigNumber from "bignumber.js";
-import {
-  createContext,
-  ReactNode,
-  useCallback,
-  useContext,
-  useMemo,
-  useState,
-} from "react";
+import { createContext, ReactNode, useContext, useMemo, useState } from "react";
 
 import { httpClient } from "@/lib/client";
 import { Token } from "@/types/base";
@@ -136,7 +129,7 @@ export const useSwapActions = () => {
         };
       });
     };
-    const clear = () => setSwapState({});
+    const clear = () => setSwapState((prev) => ({ ...prev, amount: "" }));
     return { setBuyToken, setSellToken, setAmount, switchTokens, clear };
   }, [setSwapState]);
 };

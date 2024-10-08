@@ -2,12 +2,7 @@ import qs from "qs";
 import { isAddress } from "viem";
 import { z } from "zod";
 
-import {
-  createClient,
-  createTokenService,
-  createUniswapService,
-  createUniswapV3Service,
-} from "../shared";
+import { createClient, createLiquidityClient } from "../shared";
 
 const schema = z.object({
   src: z.string().refine((val) => isAddress(val)),
@@ -19,8 +14,8 @@ const schema = z.object({
 const handleRequest = async (data: z.infer<typeof schema>) => {
   const { src, dst, amount, to } = data;
   const client = createClient();
-  const uniswapV2Service = createUniswapService({ client });
-  const result = await uniswapV2Service.buildTransaction({
+  const uniswapV2Service = createLiquidityClient({ client });
+  const result = await uniswapV2Service.swap({
     src,
     dst,
     amount,

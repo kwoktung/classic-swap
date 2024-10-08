@@ -1,6 +1,6 @@
 import BigNumber from "bignumber.js";
 import { flatten, unionBy } from "lodash";
-import type { Address, Hex, PublicClient } from "viem";
+import type { Address, Hex, PublicClient, zeroAddress } from "viem";
 import {
   encodeFunctionData,
   encodePacked,
@@ -16,7 +16,8 @@ import type {
   BuildTransactionResponse,
   GetPriceArgs,
   GetPriceResponse,
-  LiquiditySource,
+  LiquidityProvider,
+  LiquidityProviderName,
 } from "../types";
 import { PairAbi } from "./abis/Pair";
 import { RouterAbi } from "./abis/Router02";
@@ -70,7 +71,8 @@ class UniswapV2Pool {
   }
 }
 
-export class UniswapV2Client implements LiquiditySource {
+export class UniswapV2Client implements LiquidityProvider {
+  name: LiquidityProviderName = "UniswapV2";
   readonly routerAddress: Address;
   readonly weth9Address: Address;
 
@@ -329,6 +331,7 @@ export class UniswapV2Client implements LiquiditySource {
           value: toHex(BigInt(amount)),
           to: this.routerAddress,
         },
+        dstAmount: amountOut,
       };
     } else if (isNativeToken(dst)) {
       const data = encodeFunctionData({
@@ -344,6 +347,7 @@ export class UniswapV2Client implements LiquiditySource {
       });
       return {
         tx: { data, to: this.routerAddress, value: "0x0" },
+        dstAmount: amountOut,
       };
     } else {
       const data = encodeFunctionData({
@@ -359,6 +363,7 @@ export class UniswapV2Client implements LiquiditySource {
       });
       return {
         tx: { data, to: this.routerAddress, value: "0x0" },
+        dstAmount: amountOut,
       };
     }
   }

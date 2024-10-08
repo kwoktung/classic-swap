@@ -11,22 +11,21 @@ const schema = z.object({
 
 import {
   createClient,
+  createLiquidityClient,
   createTokenService,
-  createUniswapService,
-  createUniswapV3Service,
 } from "../shared";
 
 const handleRequest = async (data: z.infer<typeof schema>) => {
   const { src, dst, amount } = data;
   const client = createClient();
-  const uniswapV2Service = createUniswapService({ client });
+  const uniswapV2Service = createLiquidityClient({ client });
   const tokenService = createTokenService({ client });
 
   const [srcToken, dstToken] = await tokenService.getTokens({
     addresses: [src, dst],
   });
 
-  const { dstAmount } = await uniswapV2Service.getPrice({
+  const { dstAmount } = await uniswapV2Service.quote({
     src,
     dst,
     amount,
@@ -45,7 +44,7 @@ const handleRequest = async (data: z.infer<typeof schema>) => {
     buyAmount: dstAmount,
     sellAmount: amount,
     sellTokenAddress: srcToken.address,
-    allowanceTarget: uniswapV2Service.routerAddress,
+    // allowanceTarget: uniswapV2Service.routerAddress,
   };
 
   return resp;
