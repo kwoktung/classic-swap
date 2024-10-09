@@ -1,5 +1,4 @@
 import { BigNumber } from "bignumber.js";
-import qs from "qs";
 import { isAddress } from "viem";
 import { z } from "zod";
 
@@ -8,6 +7,8 @@ const schema = z.object({
   dst: z.string().refine((val) => isAddress(val)),
   amount: z.coerce.string(),
 });
+
+import { validateRequestParams } from "@/lib/validate";
 
 import {
   createClient,
@@ -18,14 +19,14 @@ import {
 const handleRequest = async (data: z.infer<typeof schema>) => {
   const { src, dst, amount } = data;
   const client = createClient();
-  const uniswapV2Service = createLiquidityClient({ client });
+  const liquidityClient = createLiquidityClient({ client });
   const tokenService = createTokenService({ client });
 
   const [srcToken, dstToken] = await tokenService.getTokens({
     addresses: [src, dst],
   });
 
-  const { dstAmount } = await uniswapV2Service.quote({
+  const { dstAmount } = await liquidityClient.quote({
     src,
     dst,
     amount,
@@ -44,7 +45,6 @@ const handleRequest = async (data: z.infer<typeof schema>) => {
     buyAmount: dstAmount,
     sellAmount: amount,
     sellTokenAddress: srcToken.address,
-    // allowanceTarget: uniswapV2Service.routerAddress,
   };
 
   return resp;
@@ -52,20 +52,14 @@ const handleRequest = async (data: z.infer<typeof schema>) => {
 
 export async function GET(request: Request) {
   const { search } = new URL(request.url);
-  const validate = schema.safeParse(qs.parse(search.slice(1), { comma: true }));
-
-  if (validate.error) {
-    const issue = validate.error.issues[0];
-    const message = issue
-      ? `[${issue.path.join(",")}] ${issue.message}`
-      : "Invalid params";
-    return Response.json({ error: message }, { status: 400 });
+  const validation = validateRequestParams(schema, search);
+  if (!validation.success) {
+    return Response.json({ error: validation.error }, { status: 400 });
   }
-
   try {
-    const result = await handleRequest(validate.data);
+    const result = await handleRequest(validation.data);
     return Response.json(result);
   } catch (e: unknown) {
-    return Response.json({ message: (e as Error).message }, { status: 500 });
+    return Response.json({ error: (e as Error).message }, { status: 500 });
   }
 }

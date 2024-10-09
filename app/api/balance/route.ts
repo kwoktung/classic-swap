@@ -1,10 +1,10 @@
 import BigNumber from "bignumber.js";
 import { keyBy } from "lodash";
-import qs from "qs";
 import { Address, isAddress } from "viem";
 import { z } from "zod";
 
 import { assets } from "@/lib/assets";
+import { validateRequestParams } from "@/lib/validate";
 import { APIBalanceResponse } from "@/types/apis";
 
 import { createClient, createTokenService } from "../shared";
@@ -40,16 +40,12 @@ const handleRequest = async (data: z.infer<typeof schema>) => {
 
 export async function GET(request: Request) {
   const { search } = new URL(request.url);
-  const validate = schema.safeParse(qs.parse(search.slice(1), { comma: true }));
-  if (validate.error) {
-    const issue = validate.error.issues[0];
-    const message = issue
-      ? `[${issue.path.join(",")}] ${issue.message}`
-      : "Invalid params";
-    return Response.json({ error: message }, { status: 401 });
+  const validation = validateRequestParams(schema, search);
+  if (!validation.success) {
+    return Response.json({ error: validation.error }, { status: 400 });
   }
   try {
-    const resp = await handleRequest(validate.data);
+    const resp = await handleRequest(validation.data);
     return Response.json(resp);
   } catch (e) {
     return Response.json({ message: (e as Error).message }, { status: 500 });

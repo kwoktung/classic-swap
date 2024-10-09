@@ -1,6 +1,7 @@
-import qs from "qs";
 import { isAddress } from "viem";
 import { z } from "zod";
+
+import { validateRequestParams } from "@/lib/validate";
 
 import { createClient, createLiquidityClient } from "../shared";
 
@@ -14,8 +15,8 @@ const schema = z.object({
 const handleRequest = async (data: z.infer<typeof schema>) => {
   const { src, dst, amount, to } = data;
   const client = createClient();
-  const uniswapV2Service = createLiquidityClient({ client });
-  const result = await uniswapV2Service.swap({
+  const liquidityClient = createLiquidityClient({ client });
+  const result = await liquidityClient.swap({
     src,
     dst,
     amount,
@@ -27,18 +28,12 @@ const handleRequest = async (data: z.infer<typeof schema>) => {
 
 export async function GET(request: Request) {
   const { search } = new URL(request.url);
-  const validate = schema.safeParse(qs.parse(search.slice(1)));
-
-  if (validate.error) {
-    const issue = validate.error.issues[0];
-    const message = issue
-      ? `[${issue.path.join(",")}] ${issue.message}`
-      : "Invalid params";
-    return Response.json({ error: message }, { status: 401 });
+  const validation = validateRequestParams(schema, search);
+  if (!validation.success) {
+    return Response.json({ error: validation.error }, { status: 400 });
   }
-
   try {
-    const resp = await handleRequest(validate.data);
+    const resp = await handleRequest(validation.data);
     return Response.json(resp);
   } catch (e) {
     return Response.json({ message: (e as Error).message }, { status: 500 });
