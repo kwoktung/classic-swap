@@ -1,13 +1,16 @@
 "use client";
 
 import BigNumber from "bignumber.js";
+import Link from "next/link";
 import { useCallback, useState } from "react";
 import { encodeFunctionData, erc20Abi, getContract } from "viem";
 import { usePublicClient, useWalletClient } from "wagmi";
 
+import { Toast, ToastAction } from "@/components/ui/toast";
 import { useToast } from "@/hooks/use-toast";
 import { isNativeToken } from "@/lib/address";
 import { httpClient } from "@/lib/client";
+import { formatExplorerUrl } from "@/lib/format";
 import { EVMTransaction, Token } from "@/types/base";
 
 import { useSwapActions } from "./context";
@@ -97,7 +100,23 @@ export const useSwapCallback = () => {
           data: resp.data.tx.data,
         });
         clear?.();
-        toast({ title: "Transaction has been submitted", variant: "default" });
+        toast({
+          title: "Transaction has been submitted",
+          action: (
+            <ToastAction altText="view transaction" asChild>
+              <Link
+                target="_blank"
+                href={formatExplorerUrl({
+                  value: txhash,
+                  format: "transaction",
+                  chainId: "137",
+                })}
+              >
+                View
+              </Link>
+            </ToastAction>
+          ),
+        });
         return txhash;
       } finally {
         setStatusText(undefined);

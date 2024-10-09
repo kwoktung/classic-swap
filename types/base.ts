@@ -13,3 +13,17 @@ export type Token = {
   decimals: number;
   logoURI?: string;
 };
+
+export type ChainExplorerConfig = {
+  name: string;
+  address: string;
+  block: string;
+  transaction: string;
+};
+
+export type Chain = {
+  name: string;
+  shortName: string;
+  chainId: string;
+  explorer: ChainExplorerConfig;
+};

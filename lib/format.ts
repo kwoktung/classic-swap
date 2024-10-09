@@ -1,6 +1,6 @@
 import BigNumber from "bignumber.js";
 
-import { Token } from "@/types/base";
+import { ChainExplorerConfig, Token } from "@/types/base";
 
 export const formatNumber = ({
   value,
@@ -24,4 +24,16 @@ export const toReadableNumber = ({
     value: BigNumber(Number(value)).shiftedBy(-decimals).toFixed(),
     decimalPlaces: 6,
   });
+};
+
+export const formatExplorerUrl = ({
+  value,
+  format,
+  chainId,
+}: {
+  value: string;
+  format: keyof ChainExplorerConfig;
+  chainId: string;
+}) => {
+  return `/explorer?format=${format}&value=${value}&chainId=${chainId}`;
 };
