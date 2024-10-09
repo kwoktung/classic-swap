@@ -1,5 +1,13 @@
 import type { UniswapSetting, UniswapV2ProviderConfig } from "../types";
 
+// https://github.com/QuickSwap/QuickSwap-sdk/blob/master/src/constants.ts
+// TODO: 1. limit base tokens 2. request min liquidity
+const QuickSwapProvider: UniswapV2ProviderConfig = {
+  factoryAddress: "0x5757371414417b8C6CAad45bAeF941aBc7d3Ab32",
+  initCode:
+    "0x96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f",
+};
+
 const ApeSwapProvider: UniswapV2ProviderConfig = {
   factoryAddress: "0xCf083Be4164828f00cAE704EC15a36D711491284",
   initCode:
@@ -25,6 +33,7 @@ const JetSwapProvider: UniswapV2ProviderConfig = {
 };
 
 const providerConfig: UniswapV2ProviderConfig[] = [
+  QuickSwapProvider,
   ApeSwapProvider,
   DfynProvider,
   ElkProvider,

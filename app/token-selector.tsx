@@ -170,11 +170,11 @@ export function TokenSelector({ token, onTokenSelect }: TokenSelectorProps) {
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         {token ? (
-          <Button variant="outline" className="rounded-full">
+          <Button variant="default" className="rounded-full">
             {token.symbol}
           </Button>
         ) : (
-          <Button variant="outline" className="rounded-full">
+          <Button variant="default" className="rounded-full">
             Select Token
           </Button>
         )}
