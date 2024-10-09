@@ -97,7 +97,7 @@ export const useSwapCallback = () => {
           data: resp.data.tx.data,
         });
         clear?.();
-        toast({ title: "Swap Success", variant: "default" });
+        toast({ title: "Transaction has been submitted", variant: "default" });
         return txhash;
       } finally {
         setStatusText(undefined);

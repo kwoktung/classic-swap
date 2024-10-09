@@ -4,6 +4,7 @@ import BigNumber from "bignumber.js";
 import { createContext, ReactNode, useContext, useMemo, useState } from "react";
 
 import { httpClient } from "@/lib/client";
+import { toReadableNumber } from "@/lib/format";
 import { Token } from "@/types/base";
 
 type ISwapState = {
@@ -79,9 +80,10 @@ export const useDeriveState = () => {
           },
         });
         return {
-          buyAmount: BigNumber(resp.data.buyAmount)
-            .shiftedBy(-buyToken.decimals)
-            .toFixed(),
+          buyAmount: toReadableNumber({
+            value: resp.data.buyAmount,
+            decimals: buyToken.decimals,
+          }),
         };
       }
       return {
