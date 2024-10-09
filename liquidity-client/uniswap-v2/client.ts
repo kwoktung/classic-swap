@@ -280,9 +280,14 @@ export class UniswapV2Client implements LiquidityProvider {
     });
 
     const paths = this.encodePaths(result[0].pools, src);
+    const amountOut = result[0].amountOut;
+
+    if (Number(amountOut) === 0) {
+      throw new Error("no path found");
+    }
 
     return {
-      amountOut: result[0].amountOut,
+      amountOut,
       paths,
     };
   }

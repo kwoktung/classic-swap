@@ -56,6 +56,7 @@ export const SwapContextProvider = ({
       setSwapState,
     };
   }, [swapState]);
+
   return <SwapContext.Provider value={value}>{children}</SwapContext.Provider>;
 };
 
@@ -87,14 +88,18 @@ export const useDeriveState = () => {
         buyAmount: "",
       };
     },
-    retry: 3,
+    retry: 1,
     staleTime: 5 * 1000,
     gcTime: 5 * 1000,
   });
+
   return {
-    loading: result.isFetching,
+    loading: result.isLoading,
+    isPending: result.isPending,
+    isFetching: result.isFetching,
     data: result.data,
     error: result.error,
+    refetch: result.refetch,
   };
 };
 

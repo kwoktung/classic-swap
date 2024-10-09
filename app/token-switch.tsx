@@ -8,14 +8,14 @@ import { useDeriveState, useSwapActions } from "./context";
 
 export const TokenSwitch = () => {
   const { switchTokens } = useSwapActions();
-  const { loading } = useDeriveState();
+  const { isFetching } = useDeriveState();
   return (
     <Button
       variant="outline"
       size="icon"
       className="rounded-full"
       onClick={switchTokens}
-      disabled={loading}
+      disabled={isFetching}
     >
       <ArrowDownIcon className="h-4 w-4" />
     </Button>

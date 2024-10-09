@@ -269,6 +269,10 @@ export class UniswapV3Client implements LiquidityProvider {
     }
     const [pools, [amountOut]] = max;
 
+    if (amountOut === BigInt(0)) {
+      throw new Error("no path found");
+    }
+
     return { amountOut: amountOut.toString(), pools, firstToken: src };
   }
 

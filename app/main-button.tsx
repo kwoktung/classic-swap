@@ -1,4 +1,5 @@
 "use client";
+
 import { ReloadIcon } from "@radix-ui/react-icons";
 import BigNumber from "bignumber.js";
 import { useCallback, useMemo } from "react";
@@ -9,6 +10,55 @@ import { isNativeToken } from "@/lib/address";
 
 import { useDeriveState, useSwapState } from "./context";
 import { useSwapCallback } from "./use-swap";
+
+const QuoteErrorButton = ({ onRetry }: { onRetry: () => void }) => {
+  return (
+    <Button size="lg" onClick={onRetry}>
+      Retry
+    </Button>
+  );
+};
+
+const QuoteLoadingButton = () => {
+  return (
+    <Button size="lg" disabled>
+      <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+    </Button>
+  );
+};
+
+const QuoteMuteButton = () => {
+  return (
+    <Button size="lg" disabled>
+      Swap
+    </Button>
+  );
+};
+
+const InsufficientBalanceButton = () => {
+  const { sellToken } = useSwapState();
+  return (
+    <Button size="lg" disabled>
+      {`Insufficient ${sellToken?.symbol.toUpperCase()} balance`}
+    </Button>
+  );
+};
+
+const SubmitButton = () => {
+  const { sellToken, amount, buyToken } = useSwapState();
+  const { handleSwap, statusText } = useSwapCallback();
+  const onSwap = useCallback(() => {
+    if (sellToken && buyToken && amount) {
+      handleSwap({ sellToken, buyToken, amount });
+    }
+  }, [handleSwap, sellToken, buyToken, amount]);
+  return (
+    <Button size="lg" onClick={onSwap}>
+      {statusText ? <ReloadIcon className="mr-2 h-4 w-4 animate-spin" /> : null}
+      {statusText || "Swap"}
+    </Button>
+  );
+};
 
 const SwapStateButton = () => {
   const account = useAccount();
@@ -31,48 +81,23 @@ const SwapStateButton = () => {
     }
   }, [balance, amount, sellToken]);
 
-  let buttonText: string = "Swap";
-
-  if (isInsufficientBalance) {
-    buttonText = `Insufficient ${sellToken?.symbol.toUpperCase()} balance`;
+  if (deriveState.isPending) {
+    return <QuoteLoadingButton />;
   }
 
-  const isNotDstAmount = !deriveState.data?.buyAmount;
+  if (deriveState.error) {
+    return <QuoteErrorButton onRetry={() => deriveState.refetch()} />;
+  }
 
-  if (
-    !deriveState ||
-    deriveState.loading ||
-    isNotDstAmount ||
-    isInsufficientBalance
-  ) {
-    return (
-      <Button size={"lg"} disabled>
-        {deriveState.loading ? (
-          <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
-        ) : (
-          buttonText
-        )}
-      </Button>
-    );
+  if (!deriveState.data) {
+    return <QuoteMuteButton />;
+  }
+
+  if (isInsufficientBalance) {
+    return <InsufficientBalanceButton />;
   }
 
   return <SubmitButton />;
-};
-
-const SubmitButton = () => {
-  const { sellToken, amount, buyToken } = useSwapState();
-  const { handleSwap, statusText } = useSwapCallback();
-  const onSwap = useCallback(() => {
-    if (sellToken && buyToken && amount) {
-      handleSwap({ sellToken, buyToken, amount });
-    }
-  }, [handleSwap, sellToken, buyToken, amount]);
-  return (
-    <Button size="lg" onClick={onSwap}>
-      {statusText ? <ReloadIcon className="mr-2 h-4 w-4 animate-spin" /> : null}
-      {statusText || "Swap"}
-    </Button>
-  );
 };
 
 export const MainButton = () => {
