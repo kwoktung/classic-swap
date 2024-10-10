@@ -26,4 +26,5 @@ export type Chain = {
   shortName: string;
   chainId: string;
   explorer: ChainExplorerConfig;
+  weth9: Address;
 };

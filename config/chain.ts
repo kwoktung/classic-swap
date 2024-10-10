@@ -10,6 +10,7 @@ const mainnet: Chain = {
     name: "https://etherscan.io/",
     transaction: "https://etherscan.io/tx/{transaction}",
   },
+  weth9: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
 };
 
 const polygon: Chain = {
@@ -22,6 +23,7 @@ const polygon: Chain = {
     name: "https://polygonscan.com/",
     transaction: "https://polygonscan.com/tx/{transaction}",
   },
+  weth9: "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270",
 };
 
 const arbitrum: Chain = {
@@ -34,6 +36,7 @@ const arbitrum: Chain = {
     name: "https://arbiscan.io/",
     transaction: "https://arbiscan.io/tx/{transaction}",
   },
+  weth9: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
 };
 
 const optimism: Chain = {
@@ -46,6 +49,7 @@ const optimism: Chain = {
     name: "https://optimistic.etherscan.io/",
     transaction: "https://optimistic.etherscan.io/tx/{transaction}",
   },
+  weth9: "0x4200000000000000000000000000000000000006",
 };
 
 const avalanche: Chain = {
@@ -58,6 +62,7 @@ const avalanche: Chain = {
     name: "https://cchain.explorer.avax.network/",
     transaction: "https://cchain.explorer.avax.network/tx/{transaction}",
   },
+  weth9: "0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7",
 };
 
 export const chainList = [mainnet, polygon, arbitrum, optimism, avalanche];

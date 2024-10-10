@@ -9,6 +9,7 @@ import {
   SwapResponse,
 } from "./types";
 
+// TODO support weth9
 export class MixedLiquidityClient implements LiquidityClient {
   private sources: LiquidityProvider[];
 
@@ -18,10 +19,10 @@ export class MixedLiquidityClient implements LiquidityClient {
 
   async quote(args: QuoteArgs): Promise<QuoteResponse> {
     const { dst, src, amount } = args;
-    const promises = this.sources.map((source) =>
+    const getPriceResp = this.sources.map((source) =>
       source.getPrice({ src, dst, amount }),
     );
-    const done = await Promise.allSettled(promises);
+    const done = await Promise.allSettled(getPriceResp);
     const fulfilled = done.filter((o) => o.status === "fulfilled");
     const sorted = fulfilled.sort((a, b) =>
       BigNumber(a.value.dstAmount).gt(b.value.dstAmount) ? -1 : 1,
@@ -34,10 +35,10 @@ export class MixedLiquidityClient implements LiquidityClient {
 
   async swap(args: SwapArgs): Promise<SwapResponse> {
     const { dst, src, amount, slippage, to } = args;
-    const promises = this.sources.map((source) =>
+    const buildTransactionResp = this.sources.map((source) =>
       source.buildTransaction({ dst, src, amount, slippage, to }),
     );
-    const done = await Promise.allSettled(promises);
+    const done = await Promise.allSettled(buildTransactionResp);
     const fulfilled = done.filter((o) => o.status === "fulfilled");
 
     const sorted = fulfilled.sort((a, b) =>
