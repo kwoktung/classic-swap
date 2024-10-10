@@ -4,7 +4,7 @@ import { erc20Abi } from "viem";
 import { isNativeToken, nativeAddress } from "@/lib/address";
 import { Token } from "@/types/base";
 
-export class TokenService {
+export class TokenClient {
   private client: PublicClient;
   constructor(props: { client: PublicClient }) {
     this.client = props.client;

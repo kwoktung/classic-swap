@@ -6,10 +6,10 @@ import { useCallback, useState } from "react";
 import { encodeFunctionData, erc20Abi, getContract } from "viem";
 import { usePublicClient, useWalletClient } from "wagmi";
 
-import { Toast, ToastAction } from "@/components/ui/toast";
+import { httpClient } from "@/client/http";
+import { ToastAction } from "@/components/ui/toast";
 import { useToast } from "@/hooks/use-toast";
 import { isNativeToken } from "@/lib/address";
-import { httpClient } from "@/lib/client";
 import { formatExplorerUrl } from "@/lib/format";
 import { EVMTransaction, Token } from "@/types/base";
 

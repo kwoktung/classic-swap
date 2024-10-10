@@ -5,6 +5,7 @@ import BigNumber from "bignumber.js";
 import { useCallback, useMemo, useState } from "react";
 import { useAccount } from "wagmi";
 
+import { httpClient } from "@/client/http";
 import { InteractiveDiv } from "@/components/interactive-elements";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,7 +15,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { httpClient } from "@/lib/client";
 import { formatNumber } from "@/lib/format";
 import {
   APIBalanceResponse,

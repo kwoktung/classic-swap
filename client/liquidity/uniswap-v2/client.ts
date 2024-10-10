@@ -1,5 +1,5 @@
 import BigNumber from "bignumber.js";
-import { flatten, unionBy } from "lodash";
+import { flatten, unionBy, uniq } from "lodash";
 import type { Address, Hex, PublicClient, zeroAddress } from "viem";
 import {
   encodeFunctionData,
@@ -16,48 +16,45 @@ import type {
   BuildTransactionResponse,
   GetPriceArgs,
   GetPriceResponse,
-  LiquidityProvider,
-  LiquidityProviderName,
+  LiquidityStrategyName,
+  LiquidityStrategyProvider,
 } from "../types";
 import { PairAbi } from "./abis/Pair";
 import { RouterAbi } from "./abis/Router02";
-import type { UniswapV2Pair, UniswapV2ProviderConfig } from "./types";
+import type {
+  UniswapV2FactoryConfig,
+  UniswapV2Pair,
+  UniswapV2Path,
+  UniswapV2Pool,
+} from "./types";
 
-type UniswapV2Path = {
-  pools: UniswapV2Pool[];
-  amountOut: string;
-};
-
-type UniswapV2Pool = {
-  token0: string;
-  token1: string;
-  address: string;
-  reserve0: string;
-  reserve1: string;
-};
-
-export class UniswapV2Client implements LiquidityProvider {
-  name: LiquidityProviderName = "UniswapV2";
-  readonly routerAddress: Address;
-  readonly weth9Address: Address;
+// https://github.com/QuickSwap/QuickSwap-sdk/blob/master/src/constants.ts
+// TODO: 1. limit base tokens 2. request min liquidity
+export class UniswapV2Client implements LiquidityStrategyProvider {
+  readonly name: LiquidityStrategyName = "UniswapV2";
+  private readonly routerAddress: Address;
+  private readonly weth9Address: Address;
 
   private baseAddresses: Address[];
 
-  private providerConfig: UniswapV2ProviderConfig[];
+  private factoryConfig: UniswapV2FactoryConfig[];
 
   private client: PublicClient;
 
   constructor(props: {
     routerAddress: Address;
+    weth9Address: Address;
 
     basePairs: Address[];
     client: PublicClient;
-    weth9Address: Address;
-    providerConfig: UniswapV2ProviderConfig[];
+
+    factoryConfig: UniswapV2FactoryConfig[];
   }) {
-    this.routerAddress = props.routerAddress;
     this.weth9Address = props.weth9Address;
-    this.providerConfig = props.providerConfig;
+
+    this.routerAddress = props.routerAddress;
+
+    this.factoryConfig = props.factoryConfig;
 
     this.baseAddresses = props.basePairs;
     this.client = props.client;
@@ -68,11 +65,13 @@ export class UniswapV2Client implements LiquidityProvider {
     tokenB,
     factoryAddress,
     initCode,
+    protocol,
   }: {
     tokenA: Address;
     tokenB: Address;
     factoryAddress: Address;
     initCode: Hex;
+    protocol: string;
   }): UniswapV2Pair {
     const [token0, token1] =
       tokenA.toLowerCase() < tokenB.toLowerCase()
@@ -84,7 +83,7 @@ export class UniswapV2Client implements LiquidityProvider {
       salt: keccak256(encodePacked(["address", "address"], [token0, token1])),
       bytecodeHash: initCode,
     });
-    return { token0, token1, address };
+    return { token0, token1, address, protocol };
   }
 
   private getPairs({
@@ -135,7 +134,7 @@ export class UniswapV2Client implements LiquidityProvider {
     };
   }
 
-  private async getAvailablePools(
+  private async getPoolFromPair(
     pairs: UniswapV2Pair[],
   ): Promise<UniswapV2Pool[]> {
     const reservesResp = await this.client.multicall({
@@ -161,6 +160,7 @@ export class UniswapV2Client implements LiquidityProvider {
           address: pair.address,
           reserve0: BigNumber(Number(result[0])).toFixed(0),
           reserve1: BigNumber(Number(result[1])).toFixed(0),
+          protocol: pair.protocol,
         };
         pools.push(pool);
       }
@@ -212,7 +212,7 @@ export class UniswapV2Client implements LiquidityProvider {
     }
   }
 
-  private encodePaths(pools: UniswapV2Pool[], tokenIn: string): string[] {
+  private getPoolsPath(pools: UniswapV2Pool[], tokenIn: string): string[] {
     const paths = pools.reduce(
       (result, pool) => {
         const current = result[0];
@@ -229,25 +229,23 @@ export class UniswapV2Client implements LiquidityProvider {
     return paths;
   }
 
-  private async getAmountOutAndPath(params: {
+  private async getPath(params: {
     src: Address;
     dst: Address;
     amount: string;
-  }): Promise<{
-    amountOut: string;
-    paths: string[];
-  }> {
+  }): Promise<UniswapV2Path> {
     const src = isNativeToken(params.src) ? this.weth9Address : params.src;
     const dst = isNativeToken(params.dst) ? this.weth9Address : params.dst;
 
-    const nestedAllPairs = this.providerConfig.map((conf) => {
+    const nestedAllPairs = this.factoryConfig.map((factoryConf) => {
       const pairs = this.getPairs({ srcToken: src, dstToken: dst }).map(
         ([token0, token1]) =>
           this.getPairAddress({
             tokenA: token0,
             tokenB: token1,
-            factoryAddress: conf.factoryAddress,
-            initCode: conf.initCode,
+            factoryAddress: factoryConf.factoryAddress,
+            initCode: factoryConf.initCode,
+            protocol: factoryConf.protocol,
           }),
       );
       return pairs;
@@ -255,23 +253,23 @@ export class UniswapV2Client implements LiquidityProvider {
 
     const pairs = unionBy(flatten(nestedAllPairs), "address");
 
-    const pairReserves = await this.getAvailablePools(pairs);
+    const pairReserves = await this.getPoolFromPair(pairs);
 
-    const result: UniswapV2Path[] = [];
+    const paths: UniswapV2Path[] = [];
 
     this.searchPaths({
       pools: pairReserves,
       amountIn: params.amount,
       tokenIn: src,
       tokenOut: dst,
-      result,
+      result: paths,
     });
 
-    if (result.length === 0) {
+    if (paths.length === 0) {
       throw new Error("no paths found");
     }
 
-    result.sort((a, b) => {
+    paths.sort((a, b) => {
       if (a.pools.length === b.pools.length) {
         return a.amountOut > b.amountOut ? -1 : 1;
       } else {
@@ -279,8 +277,7 @@ export class UniswapV2Client implements LiquidityProvider {
       }
     });
 
-    const paths = this.encodePaths(result[0].pools, src);
-    const amountOut = result[0].amountOut;
+    const { pools, amountOut } = paths[0];
 
     if (Number(amountOut) === 0) {
       throw new Error("no path found");
@@ -288,14 +285,21 @@ export class UniswapV2Client implements LiquidityProvider {
 
     return {
       amountOut,
-      paths,
+      pools,
     };
   }
 
   async getPrice(args: GetPriceArgs): Promise<GetPriceResponse> {
     const { src, dst, amount } = args;
-    const { amountOut } = await this.getAmountOutAndPath({ src, dst, amount });
-    return { dstAmount: amountOut };
+    const { amountOut, pools } = await this.getPath({
+      src,
+      dst,
+      amount,
+    });
+    return {
+      dstAmount: amountOut,
+      protocols: uniq(pools.map((o) => o.protocol)),
+    };
   }
 
   async buildTransaction(
@@ -303,11 +307,13 @@ export class UniswapV2Client implements LiquidityProvider {
   ): Promise<BuildTransactionResponse> {
     const { amount, src, dst, to, slippage = 1 } = args;
 
-    const { amountOut, paths } = await this.getAmountOutAndPath({
+    const { amountOut, pools } = await this.getPath({
       src,
       dst,
       amount,
     });
+
+    const paths = this.getPoolsPath(pools, src);
 
     const amountOutMin = BigNumber(amountOut)
       .multipliedBy(100 - Number(slippage))

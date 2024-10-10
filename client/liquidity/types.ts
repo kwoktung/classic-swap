@@ -10,6 +10,7 @@ export type GetPriceArgs = {
 
 export type GetPriceResponse = {
   dstAmount: string;
+  protocols?: string[];
 };
 
 export type BuildTransactionArgs = {
@@ -25,15 +26,17 @@ export type BuildTransactionResponse = {
   dstAmount: string;
 };
 
-export type LiquidityProviderName = "UniswapV2" | "UniswapV3";
+export type LiquidityStrategyName = "UniswapV2" | "UniswapV3";
 
-export interface LiquidityProvider {
-  name: LiquidityProviderName;
+export interface LiquidityStrategyProvider {
+  name: LiquidityStrategyName;
   getPrice(args: GetPriceArgs): Promise<GetPriceResponse>;
   buildTransaction(
     args: BuildTransactionArgs,
   ): Promise<BuildTransactionResponse>;
 }
+
+type LiquidityType = "swap" | "wrap" | "unwrap";
 
 export type QuoteArgs = {
   src: Address;
@@ -43,6 +46,8 @@ export type QuoteArgs = {
 
 export type QuoteResponse = {
   dstAmount: string;
+  protocols?: string[];
+  strategyName: LiquidityStrategyName;
 };
 
 export type SwapArgs = {

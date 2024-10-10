@@ -2,7 +2,7 @@ import { chunk } from "lodash";
 import { isAddress } from "viem";
 import { z } from "zod";
 
-import { httpClient } from "@/lib/client";
+import { httpClient } from "@/client/http";
 import { validateRequestParams } from "@/lib/validate";
 import { APIPriceResponse } from "@/types/apis";
 

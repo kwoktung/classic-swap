@@ -20,24 +20,18 @@ import {
   BuildTransactionResponse,
   GetPriceArgs,
   GetPriceResponse,
-  LiquidityProvider,
-  LiquidityProviderName,
+  LiquidityStrategyName,
+  LiquidityStrategyProvider,
 } from "../types";
 import { PoolABI } from "./abis/Pool";
 import { QuoterABI } from "./abis/Quoter";
 import { SwapRouterABI } from "./abis/SwapRouter";
-import { UniswapV3Pair } from "./types";
+import { UniswapV3Pair, UniswapV3Path } from "./types";
 
-type UniswapV3Solution = {
-  firstToken: Address;
-  pools: UniswapV3Pair[];
-  amountOut: string;
-};
+export class UniswapV3Client implements LiquidityStrategyProvider {
+  readonly name: LiquidityStrategyName = "UniswapV3";
 
-export class UniswapV3Client implements LiquidityProvider {
-  name: LiquidityProviderName = "UniswapV3";
-
-  readonly routerAddress: Address;
+  private readonly routerAddress: Address;
   readonly weth9Address: Address;
   private quoterAddress: Address;
 
@@ -204,11 +198,11 @@ export class UniswapV3Client implements LiquidityProvider {
     return encodePacked(types, path);
   };
 
-  private async getSolution(params: {
+  private async getPath(params: {
     src: Address;
     dst: Address;
     amount: string;
-  }): Promise<UniswapV3Solution> {
+  }): Promise<UniswapV3Path> {
     const src = isNativeToken(params.src) ? this.weth9Address : params.src;
     const dst = isNativeToken(params.dst) ? this.weth9Address : params.dst;
 
@@ -278,15 +272,15 @@ export class UniswapV3Client implements LiquidityProvider {
 
   async getPrice(args: GetPriceArgs): Promise<GetPriceResponse> {
     const { src, dst, amount } = args;
-    const { amountOut } = await this.getSolution({ src, dst, amount });
-    return { dstAmount: amountOut };
+    const { amountOut } = await this.getPath({ src, dst, amount });
+    return { dstAmount: amountOut, protocols: ["UniswapV3"] };
   }
 
   async buildTransaction(
     args: BuildTransactionArgs,
   ): Promise<BuildTransactionResponse> {
     const { dst, src, amount, to, slippage = 1 } = args;
-    const { pools, amountOut, firstToken } = await this.getSolution({
+    const { pools, amountOut, firstToken } = await this.getPath({
       dst,
       src,
       amount,

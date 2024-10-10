@@ -7,10 +7,16 @@ export type UniswapV3Pair = {
   fee: number;
 };
 
-export type UniswapV3Setting = {
+export type UniswapV3Config = {
   routerAddress: Address;
   factoryAddress: Address;
   quoterAddress: Address;
   base: Address[];
   initCode: Hex;
+};
+
+export type UniswapV3Path = {
+  firstToken: Address;
+  pools: UniswapV3Pair[];
+  amountOut: string;
 };

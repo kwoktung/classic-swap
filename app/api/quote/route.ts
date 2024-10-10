@@ -26,7 +26,7 @@ const handleRequest = async (data: z.infer<typeof schema>) => {
     addresses: [src, dst],
   });
 
-  const { dstAmount } = await liquidityClient.quote({
+  const { dstAmount, protocols, strategyName } = await liquidityClient.quote({
     src,
     dst,
     amount,
@@ -45,6 +45,8 @@ const handleRequest = async (data: z.infer<typeof schema>) => {
     buyAmount: dstAmount,
     sellAmount: amount,
     sellTokenAddress: srcToken.address,
+    protocols,
+    strategyName,
   };
 
   return resp;
