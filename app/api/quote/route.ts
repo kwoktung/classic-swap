@@ -1,14 +1,14 @@
 import { BigNumber } from "bignumber.js";
-import { isAddress } from "viem";
 import { z } from "zod";
 
+import { validateRequestParams, zodEVMAddress } from "@/lib/validate";
+import { APIQuoteResponse } from "@/types/apis";
+
 const schema = z.object({
-  src: z.string().refine((val) => isAddress(val)),
-  dst: z.string().refine((val) => isAddress(val)),
+  src: zodEVMAddress,
+  dst: zodEVMAddress,
   amount: z.coerce.string().refine((val) => Number(val) > 0),
 });
-
-import { validateRequestParams } from "@/lib/validate";
 
 import {
   createClient,
@@ -26,7 +26,7 @@ const handleRequest = async (data: z.infer<typeof schema>) => {
     addresses: [src, dst],
   });
 
-  const { dstAmount, protocols, strategyName } = await liquidityClient.quote({
+  const { dstAmount, protocols, strategy } = await liquidityClient.quote({
     src,
     dst,
     amount,
@@ -39,14 +39,14 @@ const handleRequest = async (data: z.infer<typeof schema>) => {
       .decimalPlaces(6)
       .toString();
 
-  const resp = {
+  const resp: APIQuoteResponse = {
     price: getPrice(dstAmount),
     buyTokenAddress: dstToken.address,
     buyAmount: dstAmount,
     sellAmount: amount,
     sellTokenAddress: srcToken.address,
     protocols,
-    strategyName,
+    strategy,
   };
 
   return resp;

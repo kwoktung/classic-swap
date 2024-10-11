@@ -1,4 +1,4 @@
-import { Token } from "./base";
+import { EVMTransaction, Token } from "./base";
 
 export type APITokensResponse = {
   assets: Token[];
@@ -10,4 +10,18 @@ export type APIBalanceResponse = {
 
 export type APIPriceResponse = {
   prices: Record<string, string>;
+};
+
+export type APIQuoteResponse = {
+  price: string;
+  buyTokenAddress: string;
+  buyAmount: string;
+  sellAmount: string;
+  sellTokenAddress: string;
+  protocols?: string[];
+  strategy: string;
+};
+
+export type APISwapResponse = {
+  tx: EVMTransaction;
 };

@@ -47,7 +47,7 @@ export type QuoteArgs = {
 export type QuoteResponse = {
   dstAmount: string;
   protocols?: string[];
-  strategyName: LiquidityStrategyName;
+  strategy: LiquidityStrategyName;
 };
 
 export type SwapArgs = {

@@ -1,15 +1,15 @@
-import { isAddress } from "viem";
 import { z } from "zod";
 
-import { validateRequestParams } from "@/lib/validate";
+import { validateRequestParams, zodEVMAddress } from "@/lib/validate";
+import { APISwapResponse } from "@/types/apis";
 
 import { createClient, createLiquidityClient } from "../shared";
 
 const schema = z.object({
-  src: z.string().refine((val) => isAddress(val)),
-  dst: z.string().refine((val) => isAddress(val)),
+  src: zodEVMAddress,
+  dst: zodEVMAddress,
   amount: z.coerce.string(),
-  to: z.string().refine((val) => isAddress(val)),
+  to: zodEVMAddress,
 });
 
 const handleRequest = async (data: z.infer<typeof schema>) => {
@@ -23,7 +23,7 @@ const handleRequest = async (data: z.infer<typeof schema>) => {
     to,
     slippage: 1,
   });
-  return result;
+  return result as APISwapResponse;
 };
 
 export async function GET(request: Request) {

@@ -1,5 +1,11 @@
 import qs from "qs";
+import { isAddress } from "viem";
 import { z } from "zod";
+
+export const zodEVMAddress = z
+  .string()
+  .transform((o) => o.toLowerCase())
+  .refine((val) => isAddress(val));
 
 export function validateRequestParams<T extends z.ZodType>(
   schema: T,

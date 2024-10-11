@@ -1,5 +1,5 @@
 import BigNumber from "bignumber.js";
-import { PublicClient } from "viem";
+import { Address, PublicClient } from "viem";
 
 import {
   LiquidityClient,
@@ -18,22 +18,27 @@ import { settings as UniswapV3Config } from "./uniswap-v3/config";
 export class MixedLiquidityClient implements LiquidityClient {
   private sources: LiquidityStrategyProvider[];
 
-  constructor({ client }: { client: PublicClient }) {
+  constructor({
+    client,
+    weth9Address,
+  }: {
+    client: PublicClient;
+    weth9Address: Address;
+  }) {
     const v2 = new UniswapV2Client({
       routerAddress: UniswapV2Config["137"].routerAddress,
       factoryConfig: UniswapV2Config["137"].factoryConfig,
-      weth9Address: "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270",
       basePairs: UniswapV2Config["137"].base,
+      weth9Address,
       client,
     });
     const v3 = new UniswapV3Client({
       routerAddress: UniswapV3Config["137"].routerAddress,
       factoryAddress: UniswapV3Config["137"].factoryAddress,
       quoterAddress: UniswapV3Config["137"].quoterAddress,
-      weth9Address: "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270",
-
       initCode: UniswapV3Config["137"].initCode,
       basePairs: UniswapV3Config["137"].base,
+      weth9Address,
       client,
     });
 
@@ -57,11 +62,11 @@ export class MixedLiquidityClient implements LiquidityClient {
       throw new Error("no paths found");
     }
 
-    const [name, priceResp] = sorted[0].value;
+    const [strategy, priceResp] = sorted[0].value;
     return {
       dstAmount: priceResp.dstAmount,
-      strategyName: name,
       protocols: priceResp.protocols,
+      strategy,
     };
   }
 

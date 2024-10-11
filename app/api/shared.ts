@@ -20,5 +20,8 @@ export const createTokenService = ({ client }: { client: PublicClient }) => {
 };
 
 export const createLiquidityClient = ({ client }: { client: PublicClient }) => {
-  return new MixedLiquidityClient({ client });
+  return new MixedLiquidityClient({
+    client,
+    weth9Address: "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270",
+  });
 };
