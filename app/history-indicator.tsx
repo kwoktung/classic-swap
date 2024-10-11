@@ -1,9 +1,10 @@
 "use client";
 
+import { ReloadIcon } from "@radix-ui/react-icons";
 import { PrimitiveAtom, useAtom } from "jotai";
 import { splitAtom } from "jotai/utils";
 import { useEffect } from "react";
-import { Hash } from "viem";
+import type { Hash } from "viem";
 import { usePublicClient } from "wagmi";
 
 import { Button } from "@/components/ui/button";
@@ -24,9 +25,13 @@ const HistoryObserve = ({ txAtom }: { txAtom: PrimitiveAtom<HistoryItem> }) => {
       if (receipt) {
         setTx({
           ...tx,
-          txHash: tx.txHash,
           status: receipt.status === "success" ? "success" : "failed",
         });
+      } else {
+        const now = Date.now();
+        if (now - tx.createAt > 1000 * 60 * 60 * 24) {
+          setTx({ ...tx, status: "failed" });
+        }
       }
     }, 10 * 1000);
     return () => clearInterval(timer);
@@ -35,11 +40,14 @@ const HistoryObserve = ({ txAtom }: { txAtom: PrimitiveAtom<HistoryItem> }) => {
 };
 
 export const HistoryIndicator = () => {
-  // TODO: https://jotai.org/docs/recipes/large-objects
+  // https://jotai.org/docs/recipes/large-objects
   const [txsAtom] = useAtom(splitAtom(pendingHistoryListAtom));
   return (
     <>
-      <Button>{txsAtom.length} pending tx</Button>
+      <Button>
+        <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+        <span>{txsAtom.length} pending</span>
+      </Button>
       {txsAtom.map((atom) => (
         <HistoryObserve key={atom.toString()} txAtom={atom}></HistoryObserve>
       ))}

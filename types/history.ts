@@ -9,4 +9,5 @@ export type HistoryItem = {
   toAmount: string;
   status: HistoryItemStatus;
   txHash: string;
+  createAt: number;
 };

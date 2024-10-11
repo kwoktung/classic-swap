@@ -277,16 +277,13 @@ export class UniswapV2Client implements LiquidityStrategyProvider {
       }
     });
 
-    const { pools, amountOut } = paths[0];
+    const bestPath = paths[0];
 
-    if (Number(amountOut) === 0) {
+    if (Number(bestPath.amountOut) === 0) {
       throw new Error("no path found");
     }
 
-    return {
-      amountOut,
-      pools,
-    };
+    return bestPath;
   }
 
   async getPrice(args: GetPriceArgs): Promise<GetPriceResponse> {
@@ -313,7 +310,10 @@ export class UniswapV2Client implements LiquidityStrategyProvider {
       amount,
     });
 
-    const paths = this.getPoolsPath(pools, src);
+    const paths = this.getPoolsPath(
+      pools,
+      isNativeToken(src) ? this.weth9Address : src,
+    );
 
     const amountOutMin = BigNumber(amountOut)
       .multipliedBy(100 - Number(slippage))

@@ -112,6 +112,7 @@ export const useSwapCallback = () => {
           toAmount: "0",
           txHash: txhash,
           status: "pending",
+          createAt: Date.now(),
         };
         addHistoryItem(historyItem);
         clear?.();

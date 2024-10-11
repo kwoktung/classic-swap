@@ -3,13 +3,12 @@ import type { UniswapV2Config, UniswapV2FactoryConfig } from "../types";
 // https://github.com/QuickSwap/QuickSwap-sdk/blob/master/src/constants.ts
 // TODO: 1. limit base tokens 2. request min liquidity
 const factoryConfig: UniswapV2FactoryConfig[] = [
-  //   {
-  //     protocol: "QuickSwap",
-  //     factoryAddress: "0x5757371414417b8C6CAad45bAeF941aBc7d3Ab32",
-  //     initCode:
-  //       "0x96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f",
-  //   },
-  // APE 好像限制了 其他渠道的路由
+  {
+    protocol: "QuickSwap",
+    factoryAddress: "0x5757371414417b8C6CAad45bAeF941aBc7d3Ab32",
+    initCode:
+      "0x96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f",
+  },
   {
     protocol: "Ape",
     factoryAddress: "0xCf083Be4164828f00cAE704EC15a36D711491284",
@@ -44,6 +43,7 @@ export const polygonConfig: UniswapV2Config = {
     "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270",
     "0x0b3f868e0be5597d5db7feb59e1cadbb0fdda50a",
     "0x1bfd67037b42cf73acf2047067bd4f2c47d9bfd6",
+    "0x3c499c542cef5e3811e1192ce70d8cc03d5c3359",
   ],
   routerAddress: "0xC0788A3aD43d79aa53B09c2EaCc313A787d1d607",
   factoryConfig,
