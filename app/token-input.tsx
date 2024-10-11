@@ -1,3 +1,6 @@
+import BigNumber from "bignumber.js";
+import { ChangeEvent, useCallback } from "react";
+
 import { InteractiveInput } from "@/components/interactive-elements";
 import { Button } from "@/components/ui/button";
 import { formatNumber } from "@/lib/format";
@@ -29,6 +32,15 @@ export const TokenInput = ({
   balance,
   onMax,
 }: TokenInputProps) => {
+  const onChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      if (value === "" || !BigNumber(value).isNaN()) {
+        onAmountChange?.(value);
+      }
+    },
+    [onAmountChange],
+  );
   return (
     <div className={cn("relative", isLoading ? "opacity-80" : "opacity-100")}>
       {isLoading ? <div className="absolute w-full h-full"></div> : null}
@@ -41,7 +53,7 @@ export const TokenInput = ({
             className="bg-transparent border-none text-3xl w-full p-0 outline-none font-medium"
             value={amount}
             disabled={disabled}
-            onChange={(e) => onAmountChange?.(e.target.value)}
+            onChange={onChange}
           ></InteractiveInput>
           <TokenSelector token={token} onTokenSelect={onTokenSelect} />
         </div>

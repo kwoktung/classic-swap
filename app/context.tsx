@@ -2,6 +2,7 @@
 import { useQuery } from "@tanstack/react-query";
 import BigNumber from "bignumber.js";
 import { createContext, ReactNode, useContext, useMemo, useState } from "react";
+import { useDebounce } from "use-debounce";
 
 import { httpClient } from "@/client/http";
 import { toReadableNumber } from "@/lib/format";
@@ -67,7 +68,8 @@ export const useSwapState = () => {
 };
 
 export const useDeriveState = () => {
-  const { sellToken, amount, buyToken } = useSwapState();
+  const swapState = useSwapState();
+  const [{ sellToken, buyToken, amount }] = useDebounce(swapState, 1000);
   const result = useQuery<{ buyAmount: string }>({
     queryKey: [sellToken?.address, buyToken?.address, amount],
     queryFn: async () => {

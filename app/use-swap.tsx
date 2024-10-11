@@ -1,6 +1,7 @@
 "use client";
 
 import BigNumber from "bignumber.js";
+import { useSetAtom } from "jotai";
 import Link from "next/link";
 import { useCallback, useState } from "react";
 import { encodeFunctionData, erc20Abi, getContract } from "viem";
@@ -11,7 +12,9 @@ import { ToastAction } from "@/components/ui/toast";
 import { useToast } from "@/hooks/use-toast";
 import { isNativeToken } from "@/lib/address";
 import { formatExplorerUrl } from "@/lib/format";
+import { addHistoryAtom } from "@/state/atom";
 import { EVMTransaction, Token } from "@/types/base";
+import { HistoryItem } from "@/types/history";
 
 import { useSwapActions } from "./context";
 
@@ -28,6 +31,7 @@ export const useSwapCallback = () => {
   const client = usePublicClient();
   const { clear } = useSwapActions();
   const { toast } = useToast();
+  const addHistoryItem = useSetAtom(addHistoryAtom);
 
   const handleSwap = useCallback(
     async (swapState: {
@@ -38,18 +42,19 @@ export const useSwapCallback = () => {
       if (!swapState || !wallet.data || !client) {
         return;
       }
-      const formattedSellAmount = BigNumber(swapState.amount)
-        .shiftedBy(swapState.sellToken.decimals)
+      const { sellToken, buyToken, amount } = swapState;
+      const formattedSellAmount = BigNumber(amount)
+        .shiftedBy(sellToken.decimals)
         .toFixed(0);
       try {
         const erc20Contract = getContract({
-          address: swapState.sellToken.address,
+          address: sellToken.address,
           abi: erc20Abi,
           client,
         });
         setStatusText("Check Balance");
         let balanceOf = BigInt(0);
-        if (isNativeToken(swapState.sellToken.address)) {
+        if (isNativeToken(sellToken.address)) {
           balanceOf = await client.getBalance({
             address: wallet.data.account.address,
           });
@@ -99,6 +104,16 @@ export const useSwapCallback = () => {
           value: BigInt(Number(resp.data.tx.value)),
           data: resp.data.tx.data,
         });
+        const historyItem: HistoryItem = {
+          fromToken: sellToken,
+          fromAmount: amount,
+          toToken: buyToken,
+          // TODO: FIXME
+          toAmount: "0",
+          txHash: txhash,
+          status: "pending",
+        };
+        addHistoryItem(historyItem);
         clear?.();
         toast({
           title: "Transaction has been submitted",
@@ -122,7 +137,7 @@ export const useSwapCallback = () => {
         setStatusText(undefined);
       }
     },
-    [client, wallet, toast, clear],
+    [client, wallet, toast, clear, addHistoryItem],
   );
   return { handleSwap, statusText };
 };

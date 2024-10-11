@@ -5,7 +5,7 @@ import { z } from "zod";
 const schema = z.object({
   src: z.string().refine((val) => isAddress(val)),
   dst: z.string().refine((val) => isAddress(val)),
-  amount: z.coerce.string(),
+  amount: z.coerce.string().refine((val) => Number(val) > 0),
 });
 
 import { validateRequestParams } from "@/lib/validate";
