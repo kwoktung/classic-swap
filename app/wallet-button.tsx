@@ -1,10 +1,12 @@
 "use client";
 
 import { useAtomValue } from "jotai";
+import Link from "next/link";
 import { useAccount, useConnect, useSwitchChain } from "wagmi";
 import { polygon } from "wagmi/chains";
 
 import { Button } from "@/components/ui/button";
+import { formatExplorerUrl } from "@/lib/format";
 import { pendingHistoryListAtom } from "@/state/atom";
 
 import { HistoryIndicator } from "./history-indicator";
@@ -53,8 +55,17 @@ export const WalletConnect = () => {
   }
 
   return (
-    <Button
-      variant={"ghost"}
-    >{`${account.address.slice(0, 6)}...${account.address.slice(-6)}`}</Button>
+    <Link
+      href={formatExplorerUrl({
+        value: account.address,
+        format: "address",
+        chainId: String(account.chainId),
+      })}
+      target="_blank"
+    >
+      <Button
+        variant={"ghost"}
+      >{`${account.address.slice(0, 6)}...${account.address.slice(-6)}`}</Button>
+    </Link>
   );
 };

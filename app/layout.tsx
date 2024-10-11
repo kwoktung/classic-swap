@@ -20,7 +20,7 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: "Swap",
-  description: "1inch Open Source Alternative",
+  description: "Open Swap",
 };
 
 export default function RootLayout({
