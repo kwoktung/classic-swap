@@ -24,4 +24,5 @@ export type APIQuoteResponse = {
 
 export type APISwapResponse = {
   tx: EVMTransaction;
+  type: string;
 };

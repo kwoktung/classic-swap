@@ -20,16 +20,16 @@ import {
   BuildTransactionResponse,
   GetPriceArgs,
   GetPriceResponse,
-  LiquidityStrategyName,
-  LiquidityStrategyProvider,
+  LiquidityProvider,
+  LiquidityStrategy,
 } from "../types";
 import { PoolABI } from "./abis/Pool";
 import { QuoterABI } from "./abis/Quoter";
 import { SwapRouterABI } from "./abis/SwapRouter";
 import { UniswapV3Pair, UniswapV3Path } from "./types";
 
-export class UniswapV3Client implements LiquidityStrategyProvider {
-  readonly name: LiquidityStrategyName = "UniswapV3";
+export class UniswapV3Client implements LiquidityProvider {
+  readonly name: LiquidityStrategy = "UniswapV3";
 
   private readonly routerAddress: Address;
   readonly weth9Address: Address;

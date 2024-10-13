@@ -63,11 +63,12 @@ export const useSwapCallback = () => {
             wallet.data.account.address,
           ]);
         }
-        if (new BigNumber(Number(balanceOf)).lt(formattedSellAmount)) {
+        if (new BigNumber(balanceOf.toString()).lt(formattedSellAmount)) {
           return;
         }
         const resp = await httpClient.get<{
           tx: EVMTransaction;
+          type: string;
         }>("/api/swap", {
           params: {
             to: wallet.data.account.address,
@@ -76,20 +77,27 @@ export const useSwapCallback = () => {
             amount: formattedSellAmount,
           },
         });
-        if (resp.data.tx.to && !isNativeToken(swapState.sellToken.address)) {
+        const { tx, type } = resp.data;
+        if (
+          tx.to &&
+          type == "swap" &&
+          !isNativeToken(swapState.sellToken.address)
+        ) {
           setStatusText("Check Approve");
           const allowanceValue = await erc20Contract.read.allowance([
             wallet.data.account.address,
-            resp.data.tx.to,
+            tx.to,
           ]);
-          if (new BigNumber(Number(allowanceValue)).lt(formattedSellAmount)) {
+          if (
+            new BigNumber(allowanceValue.toString()).lt(formattedSellAmount)
+          ) {
             setStatusText("Approve");
             const approveHash = await wallet.data.sendTransaction({
               to: swapState.sellToken.address,
               data: encodeFunctionData({
                 abi: erc20Abi,
                 functionName: "approve",
-                args: [resp.data.tx.to, BigInt(formattedSellAmount)],
+                args: [tx.to, BigInt(formattedSellAmount)],
               }),
             });
 
@@ -100,8 +108,8 @@ export const useSwapCallback = () => {
         }
         setStatusText("Swap");
         const txhash = await wallet.data.sendTransaction({
-          to: resp.data.tx.to,
-          value: BigInt(Number(resp.data.tx.value)),
+          to: tx.to,
+          value: BigInt(BigNumber(tx.value).toString()),
           data: resp.data.tx.data,
         });
         const historyItem: HistoryItem = {

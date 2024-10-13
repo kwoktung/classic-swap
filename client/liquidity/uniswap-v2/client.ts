@@ -16,8 +16,8 @@ import type {
   BuildTransactionResponse,
   GetPriceArgs,
   GetPriceResponse,
-  LiquidityStrategyName,
-  LiquidityStrategyProvider,
+  LiquidityProvider,
+  LiquidityStrategy,
 } from "../types";
 import { PairAbi } from "./abis/Pair";
 import { RouterAbi } from "./abis/Router02";
@@ -30,8 +30,8 @@ import type {
 
 // https://github.com/QuickSwap/QuickSwap-sdk/blob/master/src/constants.ts
 // TODO: 1. limit base tokens 2. request min liquidity
-export class UniswapV2Client implements LiquidityStrategyProvider {
-  readonly name: LiquidityStrategyName = "UniswapV2";
+export class UniswapV2Client implements LiquidityProvider {
+  readonly name: LiquidityStrategy = "UniswapV2";
   private readonly routerAddress: Address;
   private readonly weth9Address: Address;
 

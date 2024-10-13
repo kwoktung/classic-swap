@@ -4,7 +4,7 @@ import { ReloadIcon } from "@radix-ui/react-icons";
 import { PrimitiveAtom, useAtom } from "jotai";
 import { splitAtom } from "jotai/utils";
 import { useEffect } from "react";
-import type { Hash } from "viem";
+import type { Hash, TransactionReceipt } from "viem";
 import { usePublicClient } from "wagmi";
 
 import { Button } from "@/components/ui/button";
@@ -19,9 +19,15 @@ const HistoryObserve = ({ txAtom }: { txAtom: PrimitiveAtom<HistoryItem> }) => {
       return;
     }
     const timer = setInterval(async () => {
-      const receipt = await client.getTransactionReceipt({
-        hash: tx.txHash as Hash,
-      });
+      let receipt: TransactionReceipt | undefined;
+      try {
+        receipt = await client.getTransactionReceipt({
+          hash: tx.txHash as Hash,
+        });
+      } catch {
+        console.error("failed to find out receipt");
+        return;
+      }
       if (receipt) {
         setTx({
           ...tx,

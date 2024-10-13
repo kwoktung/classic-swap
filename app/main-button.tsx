@@ -75,9 +75,10 @@ const SwapStateButton = () => {
 
   const isInsufficientBalance = useMemo(() => {
     if (balance.status === "success" && amount && sellToken) {
+      // Number(1013483144237488630) = 1013483144237488600
       return BigNumber(amount)
         .shiftedBy(sellToken.decimals)
-        .gt(Number(balance.data.value));
+        .gt(balance.data.value.toString());
     }
   }, [balance, amount, sellToken]);
 

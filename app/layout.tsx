@@ -19,8 +19,9 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Swap",
-  description: "Open Swap",
+  title: "Classic Swap",
+  description:
+    "A set of API endpoints for cryptocurrency trading and information retrieval",
 };
 
 export default function RootLayout({
