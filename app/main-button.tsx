@@ -90,7 +90,7 @@ const SwapStateButton = () => {
     return <QuoteErrorButton onRetry={() => deriveState.refetch()} />;
   }
 
-  if (!deriveState.data) {
+  if (!deriveState.data?.buyAmount) {
     return <QuoteMuteButton />;
   }
 

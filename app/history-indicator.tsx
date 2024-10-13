@@ -8,7 +8,7 @@ import type { Hash, TransactionReceipt } from "viem";
 import { usePublicClient } from "wagmi";
 
 import { Button } from "@/components/ui/button";
-import { pendingHistoryListAtom } from "@/state/atom";
+import { pendingHistoryListAtom, refreshKeyAtom } from "@/state/atom";
 import { HistoryItem } from "@/types/history";
 
 const HistoryObserve = ({ txAtom }: { txAtom: PrimitiveAtom<HistoryItem> }) => {
@@ -48,6 +48,11 @@ const HistoryObserve = ({ txAtom }: { txAtom: PrimitiveAtom<HistoryItem> }) => {
 export const HistoryIndicator = () => {
   // https://jotai.org/docs/recipes/large-objects
   const [txsAtom] = useAtom(splitAtom(pendingHistoryListAtom));
+  const [, setRefreshKey] = useAtom(refreshKeyAtom);
+  useEffect(() => {
+    // fix me: refresh when txs length changed
+    return () => setRefreshKey(Date.now());
+  }, [setRefreshKey]);
   return (
     <>
       <Button>

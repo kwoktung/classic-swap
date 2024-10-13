@@ -13,3 +13,5 @@ export const addHistoryAtom = atom(null, (get, set, item: HistoryItem) => {
   const list = get(historyListAtom);
   set(historyListAtom, [...list, item]);
 });
+
+export const refreshKeyAtom = atom<number>(0);

@@ -1,14 +1,18 @@
 "use client";
 
+import { useAtomValue } from "jotai";
+import { useEffect } from "react";
 import { useAccount, useBalance } from "wagmi";
 
 import { isNativeToken } from "@/lib/address";
 import { toReadableNumber } from "@/lib/format";
+import { refreshKeyAtom } from "@/state/atom";
 
 import { useDeriveState, useSwapActions, useSwapState } from "./context";
 import { TokenInput } from "./token-input";
 
 export const SellSection = () => {
+  const refreshKey = useAtomValue(refreshKeyAtom);
   const { sellToken, amount } = useSwapState();
   const { setSellToken, setAmount } = useSwapActions();
   const account = useAccount();
@@ -19,6 +23,11 @@ export const SellSection = () => {
         ? sellToken.address
         : undefined,
   });
+  useEffect(() => {
+    if (refreshKey > 0) {
+      balance.refetch();
+    }
+  }, [refreshKey, balance]);
   return (
     <TokenInput
       label="Sell"
@@ -40,6 +49,7 @@ export const SellSection = () => {
 };
 
 export const BuySection = () => {
+  const refreshKey = useAtomValue(refreshKeyAtom);
   const { buyToken } = useSwapState();
   const { setBuyToken } = useSwapActions();
   const account = useAccount();
@@ -51,6 +61,11 @@ export const BuySection = () => {
         : undefined,
   });
   const { data, loading } = useDeriveState();
+  useEffect(() => {
+    if (refreshKey > 0) {
+      balance.refetch();
+    }
+  }, [refreshKey, balance]);
   return (
     <TokenInput
       disabled
