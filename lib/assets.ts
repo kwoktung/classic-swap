@@ -2,7 +2,7 @@ import { Token } from "@/types/base";
 
 export const assets: Token[] = [
   {
-    name: "POL",
+    name: "Polygon POL",
     address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
     symbol: "POL",
     decimals: 18,

@@ -15,6 +15,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 import { formatNumber } from "@/lib/format";
 import {
   APIBalanceResponse,
@@ -131,7 +132,21 @@ const TokenList = ({
   }, [balancesMap, pricesMap, result.data]);
 
   if (result.isLoading) {
-    return <div className="">Loading</div>;
+    return (
+      <div className="space-y-4">
+        {Array.from([1, 2, 3]).map((o) => {
+          return (
+            <div key={o} className="flex items-center space-x-4">
+              <Skeleton className="h-12 w-12 rounded-full" />
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-[100px]" />
+                <Skeleton className="h-4 w-[75px]" />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
   }
   if (!result.data || result.data.length === 0) {
     return <div className="">No token found</div>;
