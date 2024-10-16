@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { isNativeToken } from "@/lib/address";
 import { formatExplorerUrl } from "@/lib/format";
 import { addHistoryAtom } from "@/state/atom";
+import type { APISwapResponse } from "@/types/apis";
 import { EVMTransaction, Token } from "@/types/base";
 import { HistoryItem } from "@/types/history";
 
@@ -43,7 +44,7 @@ export const useSwapCallback = () => {
         return;
       }
       const { sellToken, buyToken, amount } = swapState;
-      const formattedSellAmount = BigNumber(amount)
+      const sellAmount = BigNumber(amount)
         .shiftedBy(sellToken.decimals)
         .toFixed(0);
       try {
@@ -63,41 +64,32 @@ export const useSwapCallback = () => {
             wallet.data.account.address,
           ]);
         }
-        if (new BigNumber(balanceOf.toString()).lt(formattedSellAmount)) {
+        if (new BigNumber(balanceOf.toString()).lt(sellAmount)) {
           return;
         }
-        const resp = await httpClient.get<{
-          tx: EVMTransaction;
-          type: string;
-        }>("/api/swap", {
+        const resp = await httpClient.get<APISwapResponse>("/api/swap", {
           params: {
             to: wallet.data.account.address,
-            src: swapState.sellToken.address,
-            dst: swapState.buyToken.address,
-            amount: formattedSellAmount,
+            src: sellToken.address,
+            dst: buyToken.address,
+            amount: sellAmount,
           },
         });
-        const { tx, type } = resp.data;
-        if (
-          tx.to &&
-          type == "swap" &&
-          !isNativeToken(swapState.sellToken.address)
-        ) {
+        const { tx, type, amountOut } = resp.data;
+        if (tx.to && type == "swap" && !isNativeToken(sellToken.address)) {
           setStatusText("Check Approve");
           const allowanceValue = await erc20Contract.read.allowance([
             wallet.data.account.address,
             tx.to,
           ]);
-          if (
-            new BigNumber(allowanceValue.toString()).lt(formattedSellAmount)
-          ) {
+          if (new BigNumber(allowanceValue.toString()).lt(sellAmount)) {
             setStatusText("Approve");
             const approveHash = await wallet.data.sendTransaction({
-              to: swapState.sellToken.address,
+              to: sellToken.address,
               data: encodeFunctionData({
                 abi: erc20Abi,
                 functionName: "approve",
-                args: [tx.to, BigInt(formattedSellAmount)],
+                args: [tx.to, BigInt(sellAmount)],
               }),
             });
 
@@ -107,18 +99,19 @@ export const useSwapCallback = () => {
           }
         }
         setStatusText("Swap");
-        const txhash = await wallet.data.sendTransaction({
+        const txHash = await wallet.data.sendTransaction({
           to: tx.to,
           value: BigInt(BigNumber(tx.value).toString()),
-          data: resp.data.tx.data,
+          data: tx.data,
         });
         const historyItem: HistoryItem = {
           fromToken: sellToken,
           fromAmount: amount,
           toToken: buyToken,
-          // TODO: FIXME
-          toAmount: "0",
-          txHash: txhash,
+          toAmount: BigNumber(amountOut)
+            .shiftedBy(-buyToken.decimals)
+            .toFixed(),
+          txHash,
           status: "pending",
           createAt: Date.now(),
         };
@@ -131,7 +124,7 @@ export const useSwapCallback = () => {
               <Link
                 target="_blank"
                 href={formatExplorerUrl({
-                  value: txhash,
+                  value: txHash,
                   format: "transaction",
                   chainId: "137",
                 })}
@@ -141,7 +134,7 @@ export const useSwapCallback = () => {
             </ToastAction>
           ),
         });
-        return txhash;
+        return txHash;
       } finally {
         setStatusText(undefined);
       }

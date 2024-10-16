@@ -5,12 +5,14 @@ import { ChainExplorerConfig, Token } from "@/types/base";
 export const formatNumber = ({
   value,
   decimalPlaces = 6,
+  roundingMode = BigNumber.ROUND_DOWN,
 }: {
   value?: string;
   decimalPlaces?: number;
+  roundingMode?: BigNumber.RoundingMode;
 }) => {
   if (!value) return "";
-  return BigNumber(value).decimalPlaces(decimalPlaces).toFixed();
+  return BigNumber(value).toFixed(decimalPlaces, roundingMode);
 };
 
 export const toReadableNumber = ({

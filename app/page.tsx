@@ -16,7 +16,7 @@ export default async function Home() {
   return (
     <SwapContextProvider sellToken={sellToken} buyToken={buyToken}>
       <div className="flex flex-col px-3">
-        <div className="flex flex-row justify-between py-3">
+        <div className="flex flex-row justify-between h-16 items-center">
           <div className=""></div>
           <div className="flex flex-row items-center gap-1">
             <WalletConnect />

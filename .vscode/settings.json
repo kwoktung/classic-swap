@@ -19,6 +19,7 @@
         "viem",
         "Wagmi",
         "WMATIC",
+        "WPOL",
         "zerox"
     ],
 }

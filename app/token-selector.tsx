@@ -31,18 +31,20 @@ type TokenListItemProps = {
 
 const TokenListItem = ({ token, amount, price }: TokenListItemProps) => {
   return (
-    <div className="flex items-center justify-between p-4 bg-accent rounded-lg shadow">
+    <div className="flex items-center justify-between p-4 border rounded-lg shadow cursor-pointer hover:bg-muted/30 transition">
       <div className="flex items-center space-x-3">
         <div className="w-10 h-10 rounded-full overflow-hidden">
           <img
             className="w-full h-full rounded-full"
             src={token.logoURI ?? ""}
-            alt={token.logoURI}
+            alt={token.symbol}
           />
         </div>
         <div>
-          <h3 className="font-semibold text-accent-foreground">{token.name}</h3>
-          <p className="text-sm text-accent-foreground space-x-1">
+          <h3 className="font-semibold text-accent-foreground select-none">
+            {token.name}
+          </h3>
+          <p className="text-sm text-accent-foreground space-x-1 select-none">
             <span>
               {formatNumber({
                 value: amount ?? "0",
@@ -71,7 +73,7 @@ const TokenList = ({
 }) => {
   const account = useAccount();
   const result = useQuery({
-    queryKey: ["token_list", account.address],
+    queryKey: ["tokens", account.address],
     queryFn: async () => {
       const resp = await httpClient.get<APITokensResponse>("/api/token", {
         params: { accountAddress: account.address },
@@ -83,7 +85,7 @@ const TokenList = ({
 
   const { data: balancesMap } = useQuery({
     enabled: Boolean(result.data?.length && result.data?.length > 0),
-    queryKey: ["token_balance", account.address],
+    queryKey: ["balances", account.address],
     queryFn: async () => {
       const resp = await httpClient.get<APIBalanceResponse>("/api/balance", {
         params: {
@@ -97,7 +99,7 @@ const TokenList = ({
 
   const { data: pricesMap } = useQuery({
     enabled: Boolean(result.data?.length && result.data?.length > 0),
-    queryKey: ["token_price"],
+    queryKey: ["prices"],
     queryFn: async () => {
       const resp = await httpClient.get<APIPriceResponse>("/api/price", {
         params: {
@@ -169,15 +171,9 @@ export function TokenSelector({ token, onTokenSelect }: TokenSelectorProps) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        {token ? (
-          <Button variant="default" className="rounded-full">
-            {token.symbol}
-          </Button>
-        ) : (
-          <Button variant="default" className="rounded-full">
-            Select Token
-          </Button>
-        )}
+        <Button variant="default" className="rounded-full">
+          {token ? token.symbol : "Select Token"}
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>

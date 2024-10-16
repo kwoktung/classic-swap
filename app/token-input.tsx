@@ -48,8 +48,8 @@ export const TokenInput = ({
         className={cn(
           "rounded-lg p-4",
           disabled
-            ? "bg-muted"
-            : "border border-accent transition duration-700 focus-within:border-current",
+            ? "bg-muted/60"
+            : "border border-accent transition duration-700 focus-within:border-primary/50",
         )}
       >
         <div className="flex flex-row justify-between">
@@ -68,11 +68,14 @@ export const TokenInput = ({
           <div className="text-sm text-secondary-foreground">
             <span className="sr-only">$290,568.03</span>
           </div>
-          {balance ? (
+          <div>
             <small className="text-sm text-muted-foreground" onClick={onMax}>
-              Balance: {formatNumber({ value: balance, decimalPlaces: 4 })}
+              Balance:
+              {balance
+                ? formatNumber({ value: balance, decimalPlaces: 4 })
+                : "0"}
             </small>
-          ) : null}
+          </div>
         </div>
       </div>
     </div>

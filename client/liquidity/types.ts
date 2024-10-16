@@ -61,6 +61,7 @@ type SwapTransactionType = "swap" | "withdraw" | "deposit";
 export type SwapResponse = {
   tx: EVMTransaction;
   type: SwapTransactionType;
+  amountOut: string;
 };
 
 export interface LiquidityClient {

@@ -53,7 +53,7 @@ const SubmitButton = () => {
     }
   }, [handleSwap, sellToken, buyToken, amount]);
   return (
-    <Button size="lg" onClick={onSwap}>
+    <Button size="lg" onClick={onSwap} disabled={!!statusText}>
       {statusText ? <ReloadIcon className="mr-2 h-4 w-4 animate-spin" /> : null}
       {statusText || "Swap"}
     </Button>

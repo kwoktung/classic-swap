@@ -89,7 +89,11 @@ export class MixedLiquidityClient implements LiquidityClient {
 
     if (isWeth9Pair) {
       const { tx } = await this.weth9Client.buildTransaction(args);
-      return { tx, type: isNativeToken(src) ? "deposit" : "withdraw" };
+      return {
+        tx,
+        amountOut: amount,
+        type: isNativeToken(src) ? "deposit" : "withdraw",
+      };
     }
 
     const buildTransactionResp = this.sources.map((source) =>
@@ -106,6 +110,12 @@ export class MixedLiquidityClient implements LiquidityClient {
       throw new Error("no path found");
     }
 
-    return { tx: fulfilled[0].value.tx, type: "swap" };
+    const bestResp = sorted[0].value;
+
+    return {
+      tx: bestResp.tx,
+      amountOut: bestResp.dstAmount,
+      type: "swap",
+    };
   }
 }

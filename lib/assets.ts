@@ -2,17 +2,17 @@ import { Token } from "@/types/base";
 
 export const assets: Token[] = [
   {
-    name: "MATIC",
+    name: "POL",
     address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-    symbol: "MATIC",
+    symbol: "POL",
     decimals: 18,
     logoURI:
       "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/polygon/info/logo.png",
   },
   {
-    name: "Wrapped Matic",
+    name: "Wrapped POL",
     address: "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270",
-    symbol: "WMATIC",
+    symbol: "WPOL",
     decimals: 18,
     logoURI:
       "https://assets.coingecko.com/coins/images/4713/thumb/matic-token-icon.png?1624446912",
