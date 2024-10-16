@@ -2,6 +2,7 @@ import { isNativeToken } from "@/lib/address";
 import { assets } from "@/lib/assets";
 
 import { SwapContextProvider } from "./context";
+import { GithubButton } from "./github-button";
 import { MainButton } from "./main-button";
 import { ThemeToggle } from "./theme-toggle";
 import { BuySection, SellSection } from "./token-section";
@@ -16,11 +17,12 @@ export default async function Home() {
   return (
     <SwapContextProvider sellToken={sellToken} buyToken={buyToken}>
       <div className="flex flex-col px-3">
-        <div className="flex flex-row justify-between h-16 items-center">
+        <div className="flex flex-row justify-between h-16 items-center max-w-7xl mx-auto w-full">
           <div className=""></div>
           <div className="flex flex-row items-center gap-1">
             <WalletConnect />
             <ThemeToggle />
+            <GithubButton />
           </div>
         </div>
         <div className="flex flex-1 justify-center items-center">
