@@ -63,9 +63,7 @@ export const WalletConnect = () => {
       })}
       target="_blank"
     >
-      <Button
-        variant={"ghost"}
-      >{`${account.address.slice(0, 6)}...${account.address.slice(-6)}`}</Button>
+      <Button variant="ghost">{`${account.address.slice(0, 6)}...${account.address.slice(-6)}`}</Button>
     </Link>
   );
 };
