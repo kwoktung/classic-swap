@@ -44,7 +44,14 @@ export const TokenInput = ({
   return (
     <div className={cn("relative", isLoading ? "opacity-80" : "opacity-100")}>
       {isLoading ? <div className="absolute w-full h-full"></div> : null}
-      <div className="rounded-lg p-4 bg-secondary">
+      <div
+        className={cn(
+          "rounded-lg p-4",
+          disabled
+            ? "bg-muted"
+            : "border border-accent transition duration-700 focus-within:border-current",
+        )}
+      >
         <div className="flex flex-row justify-between">
           <span className="text-sm text-secondary-foreground">{label}</span>
         </div>
@@ -62,14 +69,9 @@ export const TokenInput = ({
             <span className="sr-only">$290,568.03</span>
           </div>
           {balance ? (
-            <Button
-              size="sm"
-              variant="ghost"
-              className="text-secondary-foreground"
-              onClick={onMax}
-            >
+            <small className="text-sm text-muted-foreground" onClick={onMax}>
               Balance: {formatNumber({ value: balance, decimalPlaces: 4 })}
-            </Button>
+            </small>
           ) : null}
         </div>
       </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useAtomValue } from "jotai";
-import { useEffect } from "react";
+import { useMemo } from "react";
 import { useAccount, useBalance } from "wagmi";
 
 import { isNativeToken } from "@/lib/address";
@@ -17,17 +17,20 @@ export const SellSection = () => {
   const { setSellToken, setAmount } = useSwapActions();
   const account = useAccount();
   const balance = useBalance({
+    scopeKey: String(refreshKey),
     address: account.address,
-    token:
-      sellToken && !isNativeToken(sellToken.address)
-        ? sellToken.address
-        : undefined,
+    token: isNativeToken(sellToken?.address) ? undefined : sellToken?.address,
   });
-  useEffect(() => {
-    if (refreshKey > 0) {
-      balance.refetch();
-    }
-  }, [refreshKey, balance]);
+
+  const balanceParsed = useMemo(() => {
+    return balance.data
+      ? toReadableNumber({
+          value: balance.data.value,
+          decimals: balance.data.decimals,
+        })
+      : undefined;
+  }, [balance.data]);
+
   return (
     <TokenInput
       label="Sell"
@@ -35,15 +38,8 @@ export const SellSection = () => {
       onTokenSelect={setSellToken}
       amount={amount}
       onAmountChange={setAmount}
-      balance={
-        balance.data
-          ? toReadableNumber({
-              value: balance.data.value,
-              decimals: balance.data.decimals,
-            })
-          : undefined
-      }
-      onMax={() => balance.data && setAmount?.(balance.data?.formatted)}
+      balance={balanceParsed}
+      onMax={balanceParsed ? () => setAmount?.(balanceParsed) : undefined}
     ></TokenInput>
   );
 };
@@ -52,35 +48,31 @@ export const BuySection = () => {
   const refreshKey = useAtomValue(refreshKeyAtom);
   const { buyToken } = useSwapState();
   const { setBuyToken } = useSwapActions();
+  const { data, loading } = useDeriveState();
   const account = useAccount();
   const balance = useBalance({
+    scopeKey: String(refreshKey),
     address: account.address,
-    token:
-      buyToken && !isNativeToken(buyToken.address)
-        ? buyToken.address
-        : undefined,
+    token: isNativeToken(buyToken?.address) ? undefined : buyToken?.address,
   });
-  const { data, loading } = useDeriveState();
-  useEffect(() => {
-    if (refreshKey > 0) {
-      balance.refetch();
-    }
-  }, [refreshKey, balance]);
+
+  const balanceParsed = useMemo(() => {
+    return balance.data
+      ? toReadableNumber({
+          value: balance.data.value,
+          decimals: balance.data.decimals,
+        })
+      : undefined;
+  }, [balance.data]);
+
   return (
     <TokenInput
+      label="Buy"
       disabled
       isLoading={loading}
-      label="Buy"
       token={buyToken}
       onTokenSelect={setBuyToken}
-      balance={
-        balance.data
-          ? toReadableNumber({
-              value: balance.data.value,
-              decimals: balance.data.decimals,
-            })
-          : undefined
-      }
+      balance={balanceParsed}
       amount={data?.buyAmount}
     ></TokenInput>
   );
