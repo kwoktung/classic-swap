@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { validateRequestParams, zodEVMAddress } from "@/lib/validate";
+import { validateRequest, zodEVMAddress } from "@/lib/validate";
 import { APISwapResponse } from "@/types/apis";
 
 import { createClient, createLiquidityClient } from "../shared";
@@ -27,8 +27,7 @@ const handleRequest = async (data: z.infer<typeof schema>) => {
 };
 
 export async function GET(request: Request) {
-  const { search } = new URL(request.url);
-  const validation = validateRequestParams(schema, search);
+  const validation = await validateRequest(schema, request);
   if (!validation.success) {
     return Response.json({ error: validation.error }, { status: 400 });
   }

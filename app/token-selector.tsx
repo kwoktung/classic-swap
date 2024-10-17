@@ -161,7 +161,7 @@ const TokenList = ({
     return <div className="">No token found</div>;
   }
   return (
-    <div className="space-y-4 max-h-[500px] px-4 lg:max-h-[600px] overflow-y-auto">
+    <div className="space-y-4 max-h-[500px] overflow-y-auto px-4 md:px-0 md:max-h-[600px]">
       {tokenList.map((item) => (
         <InteractiveDiv
           key={item.address}
