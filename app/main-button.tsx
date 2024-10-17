@@ -3,7 +3,7 @@
 import { ReloadIcon } from "@radix-ui/react-icons";
 import BigNumber from "bignumber.js";
 import { useCallback, useMemo } from "react";
-import { useAccount, useBalance } from "wagmi";
+import { useAccount, useBalance, useConnect } from "wagmi";
 
 import { Button } from "@/components/ui/button";
 import { isNativeToken } from "@/lib/address";
@@ -103,10 +103,17 @@ const SwapStateButton = () => {
 
 export const MainButton = () => {
   const account = useAccount();
-  if (!account) {
-    return <Button className="lg">Not Connected</Button>;
-  }
-  if (!account.chain) {
+  const { connect, connectors } = useConnect();
+  if (!account.isConnected) {
+    return (
+      <Button
+        className="lg"
+        onClick={() => connect({ connector: connectors[0] })}
+      >
+        Connect Wallet
+      </Button>
+    );
+  } else if (!account.chain) {
     return (
       <Button disabled size="lg">
         Not Support Chain
