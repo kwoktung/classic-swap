@@ -6,6 +6,7 @@ import { useDebounce } from "use-debounce";
 
 import { httpClient } from "@/client/http";
 import { toReadableNumber } from "@/lib/format";
+import { APIQuoteResponse } from "@/types/apis";
 import { Token } from "@/types/base";
 
 type ISwapState = {
@@ -71,10 +72,11 @@ export const useDeriveState = () => {
   const swapState = useSwapState();
   const [{ sellToken, buyToken, amount }] = useDebounce(swapState, 600);
   const result = useQuery<{ buyAmount: string }>({
+    enabled: Boolean(sellToken && buyToken && Number(amount) > 0),
     queryKey: [sellToken?.address, buyToken?.address, amount],
     queryFn: async () => {
       if (sellToken && buyToken && amount) {
-        const resp = await httpClient.get<{ buyAmount: string }>("/api/quote", {
+        const resp = await httpClient.get<APIQuoteResponse>("/api/quote", {
           params: {
             src: sellToken?.address,
             dst: buyToken.address,

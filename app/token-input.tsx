@@ -2,7 +2,7 @@ import BigNumber from "bignumber.js";
 import { ChangeEvent, useCallback } from "react";
 
 import { InteractiveInput } from "@/components/interactive-elements";
-import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { formatNumber } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Token } from "@/types/base";
@@ -27,7 +27,7 @@ export const TokenInput = ({
   onTokenSelect,
   disabled,
   isLoading,
-  amount,
+  amount = "",
   onAmountChange,
   balance,
   onMax,
@@ -55,14 +55,20 @@ export const TokenInput = ({
         <div className="flex flex-row justify-between">
           <span className="text-sm text-secondary-foreground">{label}</span>
         </div>
-        <div className="flex items-center py-2 space-x-2">
-          <InteractiveInput
-            className="bg-transparent border-none text-3xl w-full p-0 outline-none font-medium"
-            value={amount}
-            disabled={disabled}
-            onChange={onChange}
-          ></InteractiveInput>
-          <TokenSelector token={token} onTokenSelect={onTokenSelect} />
+        <div className="flex items-center py-2 space-x-2 justify-between">
+          <div className="lg:w-[300px] sm:w-full">
+            {isLoading ? (
+              <Skeleton className="h-9 w-[100px]"></Skeleton>
+            ) : (
+              <InteractiveInput
+                className="bg-transparent border-none text-3xl p-0 outline-none font-medium w-full"
+                value={amount}
+                disabled={disabled}
+                onChange={onChange}
+              ></InteractiveInput>
+            )}
+          </div>
+          <TokenSelector token={token} onSelect={onTokenSelect} />
         </div>
         <div className="flex flex-row justify-between">
           <div className="text-sm text-secondary-foreground">

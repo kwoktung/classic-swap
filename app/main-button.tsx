@@ -82,7 +82,7 @@ const SwapStateButton = () => {
     }
   }, [balance, amount, sellToken]);
 
-  if (deriveState.isPending) {
+  if (deriveState.isFetching) {
     return <QuoteLoadingButton />;
   }
 

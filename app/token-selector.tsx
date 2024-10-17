@@ -15,7 +15,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import { formatNumber } from "@/lib/format";
 import {
   APIBalanceResponse,
@@ -152,7 +161,7 @@ const TokenList = ({
     return <div className="">No token found</div>;
   }
   return (
-    <div className="space-y-4 max-h-[300px] overflow-y-auto">
+    <div className="space-y-4 max-h-[500px] px-4 lg:max-h-[600px] overflow-y-auto">
       {tokenList.map((item) => (
         <InteractiveDiv
           key={item.address}
@@ -169,20 +178,19 @@ const TokenList = ({
   );
 };
 
-type TokenSelectorProps = {
+type TokenSelectStateProps = {
+  isOpen: boolean;
+  setIsOpen: (value: boolean) => void;
   token?: Token;
   onTokenSelect?: (token: Token) => void;
 };
 
-export function TokenSelector({ token, onTokenSelect }: TokenSelectorProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const onPress = useCallback(
-    (token: Token) => {
-      onTokenSelect?.(token);
-      setIsOpen(false);
-    },
-    [onTokenSelect],
-  );
+const DialogTokenSelect = ({
+  isOpen,
+  setIsOpen,
+  token,
+  onTokenSelect,
+}: TokenSelectStateProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
@@ -194,8 +202,63 @@ export function TokenSelector({ token, onTokenSelect }: TokenSelectorProps) {
         <DialogHeader>
           <DialogTitle>Tokens</DialogTitle>
         </DialogHeader>
-        <TokenList onTokenSelect={onPress} />
+        <TokenList onTokenSelect={onTokenSelect} />
       </DialogContent>
     </Dialog>
+  );
+};
+
+const DrawerTokenSelect = ({
+  isOpen,
+  setIsOpen,
+  token,
+  onTokenSelect,
+}: TokenSelectStateProps) => {
+  return (
+    <Drawer open={isOpen} onOpenChange={setIsOpen}>
+      <DrawerTrigger asChild>
+        <Button variant="default" className="rounded-full">
+          {token ? token.symbol : "Select Token"}
+        </Button>
+      </DrawerTrigger>
+      <DrawerContent>
+        <DrawerHeader className="text-left">
+          <DrawerTitle>Tokens</DrawerTitle>
+        </DrawerHeader>
+        <TokenList onTokenSelect={onTokenSelect} />
+      </DrawerContent>
+    </Drawer>
+  );
+};
+
+type TokenSelectorProps = {
+  token?: Token;
+  onSelect?: (token: Token) => void;
+};
+
+export function TokenSelector({ token, onSelect }: TokenSelectorProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const onTokenSelect = useCallback(
+    (token: Token) => {
+      onSelect?.(token);
+      setIsOpen(false);
+    },
+    [onSelect],
+  );
+  const isDesktop = useMediaQuery("(min-width: 768px)");
+  return !isDesktop ? (
+    <DrawerTokenSelect
+      isOpen={isOpen}
+      setIsOpen={setIsOpen}
+      token={token}
+      onTokenSelect={onTokenSelect}
+    ></DrawerTokenSelect>
+  ) : (
+    <DialogTokenSelect
+      isOpen={isOpen}
+      setIsOpen={setIsOpen}
+      token={token}
+      onTokenSelect={onTokenSelect}
+    />
   );
 }
