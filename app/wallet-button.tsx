@@ -62,6 +62,7 @@ export const WalletConnect = () => {
         chainId: String(account.chainId),
       })}
       target="_blank"
+      prefetch={false}
     >
       <Button variant="ghost">{`${account.address.slice(0, 6)}...${account.address.slice(-6)}`}</Button>
     </Link>

@@ -97,11 +97,9 @@ const TokenList = ({
     enabled: Boolean(result.data?.length && result.data?.length > 0),
     queryKey: ["balances", account.address],
     queryFn: async () => {
-      const resp = await httpClient.get<APIBalanceResponse>("/api/balance", {
-        params: {
-          accountAddress: account.address,
-          tokenAddresses: result.data?.map((o) => o.address).join(","),
-        },
+      const resp = await httpClient.post<APIBalanceResponse>("/api/balance", {
+        accountAddress: account.address,
+        tokenAddresses: result.data?.map((o) => o.address),
       });
       return resp.data.balances;
     },
@@ -111,10 +109,8 @@ const TokenList = ({
     enabled: Boolean(result.data?.length && result.data?.length > 0),
     queryKey: ["prices"],
     queryFn: async () => {
-      const resp = await httpClient.get<APIPriceResponse>("/api/price", {
-        params: {
-          tokenAddresses: result.data?.map((o) => o.address).join(","),
-        },
+      const resp = await httpClient.post<APIPriceResponse>("/api/price", {
+        tokenAddresses: result.data?.map((o) => o.address),
       });
       return resp.data.prices;
     },

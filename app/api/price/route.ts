@@ -42,8 +42,8 @@ const handleRequest = async (data: z.infer<typeof schema>) => {
   return resp;
 };
 
-export async function GET(request: Request) {
-  const validation = await validateRequest(schema, request);
+export async function POST(request: Request) {
+  const validation = await validateRequest(schema, request, true);
   if (!validation.success) {
     return Response.json({ error: validation.error }, { status: 400 });
   }
