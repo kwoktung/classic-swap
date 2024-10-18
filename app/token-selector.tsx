@@ -93,8 +93,12 @@ const TokenList = ({
     },
   });
 
+  const enabled = Boolean(
+    result.data?.length && result.data?.length > 0 && account.address,
+  );
+
   const { data: balancesMap } = useQuery({
-    enabled: Boolean(result.data?.length && result.data?.length > 0),
+    enabled,
     queryKey: ["balances", account.address],
     queryFn: async () => {
       const resp = await httpClient.post<APIBalanceResponse>("/api/balance", {
@@ -106,7 +110,7 @@ const TokenList = ({
   });
 
   const { data: pricesMap } = useQuery({
-    enabled: Boolean(result.data?.length && result.data?.length > 0),
+    enabled,
     queryKey: ["prices"],
     queryFn: async () => {
       const resp = await httpClient.post<APIPriceResponse>("/api/price", {

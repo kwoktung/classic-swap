@@ -2,6 +2,7 @@ import { createPublicClient, http, PublicClient } from "viem";
 import { polygon } from "viem/chains";
 
 import { MixedLiquidityClient } from "@/client/liquidity/liquidity-client";
+import { PriceClient } from "@/client/price";
 import { TokenClient } from "@/client/token";
 
 export const createClient = () => {
@@ -17,6 +18,10 @@ export const createClient = () => {
 
 export const createTokenService = ({ client }: { client: PublicClient }) => {
   return new TokenClient({ client });
+};
+
+export const createPriceClient = ({ client }: { client: PublicClient }) => {
+  return new PriceClient({ client });
 };
 
 export const createLiquidityClient = ({ client }: { client: PublicClient }) => {

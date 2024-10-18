@@ -4,6 +4,7 @@
     },
     "eslint.run": "onSave",
     "cSpell.words": [
+        "aave",
         "arbitrum",
         "bignumber",
         "clsx",
