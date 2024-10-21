@@ -12,24 +12,28 @@ import { TokenSelector } from "./token-selector";
 type TokenInputProps = {
   label: string;
   amount?: string;
-  onAmountChange?: (value: string) => void;
   disabled?: boolean;
   isLoading?: boolean;
   token?: Token;
-  onTokenSelect?: (token: Token) => void;
   balance?: string;
+  price?: string;
+
+  onAmountChange?: (value: string) => void;
+  onTokenSelect?: (token: Token) => void;
   onMax?: () => void;
 };
 
 export const TokenInput = ({
   label,
   token,
-  onTokenSelect,
   disabled,
   isLoading,
-  amount = "",
-  onAmountChange,
   balance,
+  price,
+  amount = "",
+
+  onTokenSelect,
+  onAmountChange,
   onMax,
 }: TokenInputProps) => {
   const onChange = useCallback(
@@ -70,18 +74,16 @@ export const TokenInput = ({
           </div>
           <TokenSelector token={token} onSelect={onTokenSelect} />
         </div>
-        <div className="flex flex-row justify-between">
-          <div className="text-sm text-secondary-foreground">
-            <span className="sr-only">$290,568.03</span>
-          </div>
-          <div>
-            <small className="text-sm text-muted-foreground" onClick={onMax}>
-              Balance:
-              {balance
-                ? formatNumber({ value: balance, decimalPlaces: 4 })
-                : "0"}
-            </small>
-          </div>
+        <div className="flex flex-row items-center justify-between">
+          <small className="text-sm text-muted-foreground">
+            {price
+              ? `$${formatNumber({ value: price, decimalPlaces: 4 })}`
+              : null}
+          </small>
+          <small className="text-sm text-muted-foreground" onClick={onMax}>
+            Balance:
+            {balance ? formatNumber({ value: balance, decimalPlaces: 4 }) : "0"}
+          </small>
         </div>
       </div>
     </div>

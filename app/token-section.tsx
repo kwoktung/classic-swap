@@ -1,9 +1,11 @@
 "use client";
 
+import BigNumber from "bignumber.js";
 import { useAtomValue } from "jotai";
 import { useMemo } from "react";
 import { useAccount, useBalance } from "wagmi";
 
+import { useTokenPrice } from "@/hooks/use-token-price";
 import { isNativeToken } from "@/lib/address";
 import { toReadableNumber } from "@/lib/format";
 import { refreshKeyAtom } from "@/state/atom";
@@ -31,6 +33,20 @@ export const SellSection = () => {
       : undefined;
   }, [balance.data]);
 
+  const priceResp = useTokenPrice({
+    enabled: sellToken !== undefined,
+    tokenAddresses: sellToken ? [sellToken.address] : [],
+  });
+
+  const priceParsed = useMemo(() => {
+    if (sellToken && priceResp.data?.[sellToken.address] && amount) {
+      return BigNumber(priceResp.data[sellToken.address])
+        .multipliedBy(amount)
+        .toFixed();
+    }
+    return;
+  }, [sellToken, priceResp, amount]);
+
   return (
     <TokenInput
       label="Sell"
@@ -40,6 +56,7 @@ export const SellSection = () => {
       onAmountChange={setAmount}
       balance={balanceParsed}
       onMax={balanceParsed ? () => setAmount?.(balanceParsed) : undefined}
+      price={priceParsed}
     ></TokenInput>
   );
 };
@@ -65,6 +82,20 @@ export const BuySection = () => {
       : undefined;
   }, [balance.data]);
 
+  const priceResp = useTokenPrice({
+    enabled: buyToken !== undefined,
+    tokenAddresses: buyToken ? [buyToken.address] : [],
+  });
+
+  const priceParsed = useMemo(() => {
+    if (buyToken && priceResp.data?.[buyToken.address] && data?.buyAmount) {
+      return BigNumber(priceResp.data[buyToken.address])
+        .multipliedBy(data?.buyAmount)
+        .toFixed();
+    }
+    return;
+  }, [buyToken, priceResp, data?.buyAmount]);
+
   return (
     <TokenInput
       label="Buy"
@@ -73,6 +104,7 @@ export const BuySection = () => {
       token={buyToken}
       onTokenSelect={setBuyToken}
       balance={balanceParsed}
+      price={priceParsed}
       amount={data?.buyAmount}
     ></TokenInput>
   );

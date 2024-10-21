@@ -26,7 +26,7 @@ export default async function Home() {
           </div>
         </div>
         <div className="flex flex-1 justify-center items-center">
-          <div className="relative flex flex-col">
+          <div className="relative flex flex-col pt-0 lg:pt-20">
             <SellSection />
             <div className="h-2"></div>
             <div className="flex flex-row justify-center items-center rounded-full">

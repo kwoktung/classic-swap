@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -19,18 +20,16 @@ import {
   Drawer,
   DrawerClose,
   DrawerContent,
+  DrawerDescription,
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMediaQuery } from "@/hooks/use-media-query";
+import { useTokenPrice } from "@/hooks/use-token-price";
 import { formatNumber } from "@/lib/format";
-import {
-  APIBalanceResponse,
-  APIPriceResponse,
-  APITokensResponse,
-} from "@/types/apis";
+import { APIBalanceResponse, APITokensResponse } from "@/types/apis";
 import { Token } from "@/types/base";
 
 type TokenListItemProps = {
@@ -43,7 +42,7 @@ const TokenListItem = ({ token, amount, price }: TokenListItemProps) => {
   return (
     <div className="flex items-center justify-between p-4 border rounded-lg shadow cursor-pointer hover:bg-muted/30 transition">
       <div className="flex items-center space-x-3">
-        <div className="w-10 h-10 rounded-full overflow-hidden">
+        <div className="w-10 h-10 rounded-full overflow-hidden bg-white">
           <img
             className="w-full h-full rounded-full"
             src={token.logoURI ?? ""}
@@ -54,21 +53,23 @@ const TokenListItem = ({ token, amount, price }: TokenListItemProps) => {
           <h3 className="font-semibold text-accent-foreground select-none">
             {token.name}
           </h3>
-          <p className="text-sm text-accent-foreground space-x-1 select-none">
-            <span>
-              {formatNumber({
-                value: amount ?? "0",
-                decimalPlaces: 4,
-              })}
-            </span>
-            <span>{token.symbol}</span>
+          <p className="text-sm space-x-1 select-none  text-primary/80">
+            {token.symbol}
           </p>
         </div>
       </div>
       <div className="flex flex-col items-end">
-        <span className="text-sm text-accent-foreground font-semibold">
+        <h3 className="font-semibold text-accent-foreground select-none">
           {price !== undefined && amount !== undefined
             ? `$${formatNumber({ value: BigNumber(price).multipliedBy(amount).toFixed(), decimalPlaces: 2 })}`
+            : null}
+        </h3>
+        <span className="text-sm space-x-1 select-none  text-primary/80">
+          {amount !== undefined
+            ? formatNumber({
+                value: amount ?? "0",
+                decimalPlaces: 4,
+              })
             : null}
         </span>
       </div>
@@ -83,22 +84,20 @@ const TokenList = ({
 }) => {
   const account = useAccount();
   const result = useQuery({
-    queryKey: ["tokens", account.address],
+    queryKey: ["tokens"],
     queryFn: async () => {
-      const resp = await httpClient.get<APITokensResponse>("/api/token", {
-        params: { accountAddress: account.address },
-      });
+      const resp = await httpClient.get<APITokensResponse>("/api/token");
       const { assets } = resp.data;
       return assets;
     },
   });
 
-  const enabled = Boolean(
+  const balanceEnabled = Boolean(
     result.data?.length && result.data?.length > 0 && account.address,
   );
 
   const { data: balancesMap } = useQuery({
-    enabled,
+    enabled: balanceEnabled,
     queryKey: ["balances", account.address],
     queryFn: async () => {
       const resp = await httpClient.post<APIBalanceResponse>("/api/balance", {
@@ -109,15 +108,11 @@ const TokenList = ({
     },
   });
 
-  const { data: pricesMap } = useQuery({
-    enabled,
-    queryKey: ["prices"],
-    queryFn: async () => {
-      const resp = await httpClient.post<APIPriceResponse>("/api/price", {
-        tokenAddresses: result.data?.map((o) => o.address),
-      });
-      return resp.data.prices;
-    },
+  const priceTokenAddresses = balancesMap ? Object.keys(balancesMap) : [];
+
+  const { data: pricesMap } = useTokenPrice({
+    enabled: priceTokenAddresses.length > 0,
+    tokenAddresses: priceTokenAddresses,
   });
 
   const tokenList = useMemo(() => {
@@ -200,7 +195,8 @@ const DialogTokenSelect = ({
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Tokens</DialogTitle>
+          <DialogTitle>Select a token</DialogTitle>
+          <DialogDescription hidden>Token Selector</DialogDescription>
         </DialogHeader>
         <TokenList onTokenSelect={onTokenSelect} />
       </DialogContent>
@@ -223,7 +219,8 @@ const DrawerTokenSelect = ({
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader className="text-left">
-          <DrawerTitle>Tokens</DrawerTitle>
+          <DrawerTitle>Select a token</DrawerTitle>
+          <DrawerDescription hidden>Token Selector</DrawerDescription>
         </DrawerHeader>
         <TokenList onTokenSelect={onTokenSelect} />
       </DrawerContent>
@@ -246,19 +243,13 @@ export function TokenSelector({ token, onSelect }: TokenSelectorProps) {
     [onSelect],
   );
   const isDesktop = useMediaQuery("(min-width: 768px)");
-  return !isDesktop ? (
-    <DrawerTokenSelect
+  const Comp = isDesktop ? DialogTokenSelect : DrawerTokenSelect;
+  return (
+    <Comp
       isOpen={isOpen}
       setIsOpen={setIsOpen}
       token={token}
       onTokenSelect={onTokenSelect}
-    ></DrawerTokenSelect>
-  ) : (
-    <DialogTokenSelect
-      isOpen={isOpen}
-      setIsOpen={setIsOpen}
-      token={token}
-      onTokenSelect={onTokenSelect}
-    />
+    ></Comp>
   );
 }
