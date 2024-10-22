@@ -44,7 +44,7 @@ const InsufficientBalanceButton = () => {
   );
 };
 
-const SubmitButton = () => {
+const SubmitButton = ({ buttonText = "Swap" }: { buttonText?: string }) => {
   const { sellToken, amount, buyToken } = useSwapState();
   const { handleSwap, statusText } = useSwapCallback();
   const onSwap = useCallback(() => {
@@ -55,7 +55,7 @@ const SubmitButton = () => {
   return (
     <Button size="lg" onClick={onSwap} disabled={!!statusText}>
       {statusText ? <ReloadIcon className="mr-2 h-4 w-4 animate-spin" /> : null}
-      {statusText || "Swap"}
+      {statusText || buttonText}
     </Button>
   );
 };
@@ -98,7 +98,12 @@ const SwapStateButton = () => {
     return <InsufficientBalanceButton />;
   }
 
-  return <SubmitButton />;
+  let buttonText: string | undefined;
+  if (deriveState.data.strategy === "WETH9") {
+    buttonText = isNativeToken(sellToken?.address) ? "Wrap" : "Unwrap";
+  }
+
+  return <SubmitButton buttonText={buttonText} />;
 };
 
 export const MainButton = () => {

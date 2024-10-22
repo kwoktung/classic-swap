@@ -71,7 +71,7 @@ export const useSwapState = () => {
 export const useDeriveState = () => {
   const swapState = useSwapState();
   const [{ sellToken, buyToken, amount }] = useDebounce(swapState, 600);
-  const result = useQuery<{ buyAmount: string }>({
+  const result = useQuery<{ buyAmount: string; strategy?: string }>({
     enabled: Boolean(sellToken && buyToken && Number(amount) > 0),
     queryKey: [sellToken?.address, buyToken?.address, amount],
     queryFn: async () => {
@@ -88,6 +88,7 @@ export const useDeriveState = () => {
             value: resp.data.buyAmount,
             decimals: buyToken.decimals,
           }),
+          strategy: resp.data.strategy,
         };
       }
       return {

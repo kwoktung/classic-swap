@@ -14,7 +14,7 @@ import { isNativeToken } from "@/lib/address";
 import { formatExplorerUrl } from "@/lib/format";
 import { addHistoryAtom } from "@/state/atom";
 import type { APISwapResponse } from "@/types/apis";
-import { EVMTransaction, Token } from "@/types/base";
+import { Token } from "@/types/base";
 import { HistoryItem } from "@/types/history";
 
 import { useSwapActions } from "./context";
