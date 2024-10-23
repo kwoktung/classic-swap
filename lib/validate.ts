@@ -7,7 +7,7 @@ export const zodEVMAddress = z
   .transform((o) => o.toLowerCase())
   .refine((val) => isAddress(val));
 
-export async function validateRequest<T extends z.ZodType>(
+async function validateRequest<T extends z.ZodType>(
   schema: T,
   request: Request,
   isBody: boolean = false,
@@ -28,5 +28,23 @@ export async function validateRequest<T extends z.ZodType>(
       ? `[${issue.path.join(",")}] ${issue.message}`
       : "Invalid params";
     return { success: false, error: message };
+  }
+}
+
+export async function handleApiRequest<R, T extends z.ZodType>(
+  schema: T,
+  request: Request,
+  handler: (data: z.infer<T>) => Promise<R>,
+  validateBody: boolean = false,
+) {
+  const validation = await validateRequest(schema, request, validateBody);
+  if (!validation.success) {
+    return Response.json({ error: validation.error }, { status: 400 });
+  }
+  try {
+    const resp = await handler(validation.data);
+    return Response.json(resp);
+  } catch (e) {
+    return Response.json({ message: (e as Error).message }, { status: 500 });
   }
 }

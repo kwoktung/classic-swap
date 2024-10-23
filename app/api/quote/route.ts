@@ -1,7 +1,7 @@
 import { BigNumber } from "bignumber.js";
 import { z } from "zod";
 
-import { validateRequest, zodEVMAddress } from "@/lib/validate";
+import { handleApiRequest, zodEVMAddress } from "@/lib/validate";
 import { APIQuoteResponse } from "@/types/apis";
 
 const schema = z.object({
@@ -53,14 +53,5 @@ const handleRequest = async (data: z.infer<typeof schema>) => {
 };
 
 export async function GET(request: Request) {
-  const validation = await validateRequest(schema, request);
-  if (!validation.success) {
-    return Response.json({ error: validation.error }, { status: 400 });
-  }
-  try {
-    const result = await handleRequest(validation.data);
-    return Response.json(result);
-  } catch (e: unknown) {
-    return Response.json({ error: (e as Error).message }, { status: 500 });
-  }
+  return handleApiRequest(schema, request, handleRequest, false);
 }

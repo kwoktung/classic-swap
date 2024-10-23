@@ -1,7 +1,7 @@
 import { isAddress } from "viem";
 import { z } from "zod";
 
-import { validateRequest } from "@/lib/validate";
+import { handleApiRequest } from "@/lib/validate";
 import { APIPriceResponse } from "@/types/apis";
 
 import { createClient, createPriceClient } from "../shared";
@@ -23,14 +23,5 @@ const handleRequest = async (data: z.infer<typeof schema>) => {
 };
 
 export async function POST(request: Request) {
-  const validation = await validateRequest(schema, request, true);
-  if (!validation.success) {
-    return Response.json({ error: validation.error }, { status: 400 });
-  }
-  try {
-    const resp = await handleRequest(validation.data);
-    return Response.json(resp);
-  } catch (e) {
-    return Response.json({ message: (e as Error).message }, { status: 500 });
-  }
+  return handleApiRequest(schema, request, handleRequest, true);
 }
