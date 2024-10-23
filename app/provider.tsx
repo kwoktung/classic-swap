@@ -1,6 +1,7 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Provider as JotaiProvider } from "jotai";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import {
   cookieStorage,
@@ -26,7 +27,9 @@ type Props = {
   children: React.ReactNode;
 };
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { retry: 1 } },
+});
 
 export const Provider = ({ children }: Props) => {
   return (
@@ -38,7 +41,7 @@ export const Provider = ({ children }: Props) => {
     >
       <WagmiProvider config={config}>
         <QueryClientProvider client={queryClient}>
-          {children}
+          <JotaiProvider>{children}</JotaiProvider>
         </QueryClientProvider>
       </WagmiProvider>
     </NextThemesProvider>

@@ -46,13 +46,11 @@ const HistoryObserve = ({ txAtom }: { txAtom: PrimitiveAtom<HistoryItem> }) => {
 };
 
 export const HistoryIndicator = () => {
-  // https://jotai.org/docs/recipes/large-objects
   const [txsAtom] = useAtom(splitAtom(pendingHistoryListAtom));
   const [, setRefreshKey] = useAtom(refreshKeyAtom);
   useEffect(() => {
-    // fix me: refresh when txs length changed
     return () => setRefreshKey(Date.now());
-  }, [setRefreshKey]);
+  }, [txsAtom.length, setRefreshKey]);
   return (
     <>
       <Button>
