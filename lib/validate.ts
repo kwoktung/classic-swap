@@ -31,12 +31,17 @@ async function validateRequest<T extends z.ZodType>(
   }
 }
 
-export async function handleApiRequest<R, T extends z.ZodType>(
-  schema: T,
-  request: Request,
-  handler: (data: z.infer<T>) => Promise<R>,
-  validateBody: boolean = false,
-) {
+export async function handleApiRequest<R, T extends z.ZodType>({
+  schema,
+  request,
+  handler,
+  validateBody = false,
+}: {
+  schema: T;
+  request: Request;
+  handler: (data: z.infer<T>) => Promise<R>;
+  validateBody?: boolean;
+}) {
   const validation = await validateRequest(schema, request, validateBody);
   if (!validation.success) {
     return Response.json({ error: validation.error }, { status: 400 });

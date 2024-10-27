@@ -38,5 +38,10 @@ const handleRequest = async (data: z.infer<typeof schema>) => {
 };
 
 export async function POST(request: Request) {
-  return handleApiRequest(schema, request, handleRequest, true);
+  return handleApiRequest({
+    schema,
+    request,
+    handler: handleRequest,
+    validateBody: true,
+  });
 }

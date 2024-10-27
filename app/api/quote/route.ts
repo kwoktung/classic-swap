@@ -48,5 +48,9 @@ const handleRequest = async (data: z.infer<typeof schema>) => {
 };
 
 export async function GET(request: Request) {
-  return handleApiRequest(schema, request, handleRequest, false);
+  return handleApiRequest({
+    schema,
+    request,
+    handler: handleRequest,
+  });
 }
