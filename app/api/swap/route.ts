@@ -3,7 +3,7 @@ import { z } from "zod";
 import { handleApiRequest, zodEVMAddress } from "@/lib/validate";
 import { APISwapResponse } from "@/types/apis";
 
-import { createClient, createLiquidityClient } from "../shared";
+import { factory } from "../factory";
 
 const schema = z.object({
   src: zodEVMAddress,
@@ -14,8 +14,7 @@ const schema = z.object({
 
 const handleRequest = async (data: z.infer<typeof schema>) => {
   const { src, dst, amount, to } = data;
-  const client = createClient();
-  const liquidityClient = createLiquidityClient({ client });
+  const liquidityClient = factory.getLiquidityClient();
   const result = await liquidityClient.swap({
     src,
     dst,
@@ -27,5 +26,9 @@ const handleRequest = async (data: z.infer<typeof schema>) => {
 };
 
 export async function GET(request: Request) {
-  return handleApiRequest(schema, request, handleRequest, false);
+  return handleApiRequest({
+    schema,
+    request,
+    handler: handleRequest,
+  });
 }

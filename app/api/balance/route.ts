@@ -7,7 +7,7 @@ import { assets } from "@/lib/assets";
 import { handleApiRequest } from "@/lib/validate";
 import { APIBalanceResponse } from "@/types/apis";
 
-import { createClient, createTokenService } from "../shared";
+import { factory } from "../factory";
 
 const schema = z.object({
   accountAddress: z.string().refine((o) => isAddress(o)),
@@ -19,8 +19,7 @@ const schema = z.object({
 
 const handleRequest = async (data: z.infer<typeof schema>) => {
   const { accountAddress } = data;
-  const client = createClient();
-  const tokenService = createTokenService({ client });
+  const tokenService = factory.getTokenClient();
 
   const balanceResp = await tokenService.getBalances({
     tokenAddresses: assets.map((o) => o.address),
@@ -39,5 +38,10 @@ const handleRequest = async (data: z.infer<typeof schema>) => {
 };
 
 export async function POST(request: Request) {
-  return handleApiRequest(schema, request, handleRequest, true);
+  return handleApiRequest({
+    schema,
+    request,
+    handler: handleRequest,
+    validateBody: true,
+  });
 }

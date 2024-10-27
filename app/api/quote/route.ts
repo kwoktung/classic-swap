@@ -10,17 +10,12 @@ const schema = z.object({
   amount: z.coerce.string().refine((val) => Number(val) > 0),
 });
 
-import {
-  createClient,
-  createLiquidityClient,
-  createTokenService,
-} from "../shared";
+import { factory } from "../factory";
 
 const handleRequest = async (data: z.infer<typeof schema>) => {
   const { src, dst, amount } = data;
-  const client = createClient();
-  const liquidityClient = createLiquidityClient({ client });
-  const tokenService = createTokenService({ client });
+  const liquidityClient = factory.getLiquidityClient();
+  const tokenService = factory.getTokenClient();
 
   const [srcToken, dstToken] = await tokenService.getTokens({
     addresses: [src, dst],
@@ -53,5 +48,9 @@ const handleRequest = async (data: z.infer<typeof schema>) => {
 };
 
 export async function GET(request: Request) {
-  return handleApiRequest(schema, request, handleRequest, false);
+  return handleApiRequest({
+    schema,
+    request,
+    handler: handleRequest,
+  });
 }

@@ -4,8 +4,9 @@ import { z } from "zod";
 
 import { assets } from "@/lib/assets";
 import { handleApiRequest } from "@/lib/validate";
+import { APITokensResponse } from "@/types/apis";
 
-import { createClient, createTokenService } from "../shared";
+import { factory } from "../factory";
 
 const tokenFuse = new Fuse(assets, {
   location: 0,
@@ -27,42 +28,51 @@ const schema = z.object({
   keyword: z.string().optional(),
 });
 
-export async function GET(request: Request) {
-  return handleApiRequest(schema, request, async (data) => {
-    const { keyword } = data;
-    if (!keyword) {
-      return { assets };
-    } else if (isAddress(keyword)) {
-      const item = assets.find(
-        (o) => o.address.toLowerCase() === keyword.toLowerCase(),
-      );
-      if (item) {
-        return { assets: [item] };
-      }
-      const client = createClient();
-      const tokenService = createTokenService({ client });
-      const [token] = await tokenService.getTokens({ addresses: [keyword] });
-      if (token) {
-        return {
-          assets: [
-            {
-              ...token,
-              logoURI: `https://placehold.co/100x100?text=${token.symbol}`,
-            },
-          ],
-        };
-      }
-    } else {
-      const pattern: Expression = {
-        $or: [
-          { name: `^${keyword}` },
-          { name: `'${keyword}` },
-          { symbol: `^${keyword}` },
-          { symbol: `'${keyword}` },
+const handleRequest = async (
+  data: z.infer<typeof schema>,
+): Promise<APITokensResponse> => {
+  const { keyword } = data;
+  if (!keyword) {
+    return { assets };
+  } else if (isAddress(keyword)) {
+    const item = assets.find(
+      (o) => o.address.toLowerCase() === keyword.toLowerCase(),
+    );
+    if (item) {
+      return { assets: [item] };
+    }
+    const tokenService = factory.getTokenClient();
+    const [token] = await tokenService.getTokens({ addresses: [keyword] });
+    if (token) {
+      return {
+        assets: [
+          {
+            ...token,
+            logoURI: `https://placehold.co/100x100?text=${token.symbol}`,
+          },
         ],
       };
-      const result = tokenFuse.search(pattern);
-      return { assets: result.map((o) => o.item) };
+    } else {
+      return { assets: [] };
     }
+  } else {
+    const pattern: Expression = {
+      $or: [
+        { name: `^${keyword}` },
+        { name: `'${keyword}` },
+        { symbol: `^${keyword}` },
+        { symbol: `'${keyword}` },
+      ],
+    };
+    const result = tokenFuse.search(pattern);
+    return { assets: result.map((o) => o.item) };
+  }
+};
+
+export async function GET(request: Request) {
+  return handleApiRequest({
+    schema,
+    request,
+    handler: handleRequest,
   });
 }
