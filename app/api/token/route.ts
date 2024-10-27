@@ -5,7 +5,7 @@ import { z } from "zod";
 import { assets } from "@/lib/assets";
 import { handleApiRequest } from "@/lib/validate";
 
-import { createClient, createTokenService } from "../shared";
+import { factory } from "../factory";
 
 const tokenFuse = new Fuse(assets, {
   location: 0,
@@ -39,8 +39,7 @@ export async function GET(request: Request) {
       if (item) {
         return { assets: [item] };
       }
-      const client = createClient();
-      const tokenService = createTokenService({ client });
+      const tokenService = factory.getTokenClient();
       const [token] = await tokenService.getTokens({ addresses: [keyword] });
       if (token) {
         return {

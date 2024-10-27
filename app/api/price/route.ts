@@ -4,7 +4,7 @@ import { z } from "zod";
 import { handleApiRequest } from "@/lib/validate";
 import { APIPriceResponse } from "@/types/apis";
 
-import { createClient, createPriceClient } from "../shared";
+import { factory } from "../factory";
 
 const schema = z.object({
   tokenAddresses: z
@@ -14,8 +14,7 @@ const schema = z.object({
 });
 
 const handleRequest = async (data: z.infer<typeof schema>) => {
-  const client = createClient();
-  const priceClient = createPriceClient({ client });
+  const priceClient = factory.getPriceClient();
   const resp = await priceClient.getPrice({
     tokenAddresses: data.tokenAddresses,
   });
