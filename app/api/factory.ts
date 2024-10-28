@@ -1,9 +1,11 @@
+import Redis from "ioredis";
 import { createPublicClient, http, PublicClient } from "viem";
 import { polygon } from "viem/chains";
 
 import { MixedLiquidityClient } from "@/client/liquidity/liquidity-client";
 import { PriceClient } from "@/client/price";
 import { TokenClient } from "@/client/token";
+import { serverConfig } from "@/config/server";
 
 type ClientOptions = {
   chainId?: string;
@@ -13,7 +15,7 @@ class Factory {
   private createRpcClient() {
     return createPublicClient({
       chain: polygon,
-      transport: http(process.env.POLYGON_RPC),
+      transport: http(serverConfig.polygonRpcUrl),
       batch: {
         multicall: true,
       },
@@ -32,6 +34,14 @@ class Factory {
     return client;
   }
 
+  private redisClient?: Redis;
+  getRedisClient() {
+    if (!this.redisClient) {
+      this.redisClient = new Redis();
+    }
+    return this.redisClient;
+  }
+
   getTokenClient(props?: ClientOptions) {
     const rpcClient = this.getRpcClient(props);
     return new TokenClient({ client: rpcClient });
@@ -39,7 +49,7 @@ class Factory {
 
   getPriceClient(props?: ClientOptions) {
     const rpcClient = this.getRpcClient(props);
-    return new PriceClient({ client: rpcClient });
+    return new PriceClient({ client: rpcClient, kv: this.getRedisClient() });
   }
 
   getLiquidityClient(props?: ClientOptions) {

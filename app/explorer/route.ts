@@ -1,7 +1,7 @@
 import { parse } from "qs";
 import { z } from "zod";
 
-import { chainList } from "@/config/chain";
+import { chainList } from "@/chain/chain";
 import type { ChainExplorerConfig } from "@/types/base";
 
 const schema = z.object({

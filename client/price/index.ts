@@ -1,4 +1,4 @@
-import { kv } from "@vercel/kv";
+import Redis from "ioredis";
 import { Address, PublicClient } from "viem";
 
 import { ChainLinkClient } from "./chain-link";
@@ -7,18 +7,21 @@ import { GeckoTerminalClient } from "./gecko-terminal";
 export class PriceClient {
   private chainLinkClient: ChainLinkClient;
   private geckoTerminalClient: GeckoTerminalClient;
-  constructor({ client }: { client: PublicClient }) {
+  private kv: Redis;
+  constructor({ client, kv }: { client: PublicClient; kv: Redis }) {
     this.chainLinkClient = new ChainLinkClient({ client });
     this.geckoTerminalClient = new GeckoTerminalClient();
+    this.kv = kv;
   }
 
   async getPrice({ tokenAddresses }: { tokenAddresses: Address[] }) {
-    const cachedResults = await Promise.all(
-      tokenAddresses.map(async (address) => {
-        const cacheKey = `price:${address}`;
-        return { address, cachedPrice: await kv.get<string>(cacheKey) };
-      }),
+    const cachedResp = await this.kv.mget(
+      tokenAddresses.map((address) => `price:${address}`),
     );
+
+    const cachedResults = tokenAddresses.map((address, i) => {
+      return { address, cachedPrice: cachedResp[i] };
+    });
 
     const uncachedAddresses = cachedResults
       .filter(({ cachedPrice }) => !cachedPrice)
@@ -44,11 +47,11 @@ export class PriceClient {
       freshPrices = { ...chainLinkResp, ...geckoTerminalResp };
 
       // Cache new results individually with a TTL of 1 minute (60 seconds)
-      await Promise.all(
-        Object.entries(freshPrices).map(([address, price]) =>
-          kv.set(`price:${address}`, price, { ex: 60 * 5 }),
-        ),
+      const pipeline = this.kv.pipeline();
+      Object.entries(freshPrices).map(([address, price]) =>
+        pipeline.set(`price:${address}`, price, "EX", 60 * 5),
       );
+      await pipeline.exec();
     }
 
     return Object.fromEntries(

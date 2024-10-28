@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 5555",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "tsc --noEmit && next lint"
@@ -15,11 +15,11 @@
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-toast": "^1.2.2",
     "@tanstack/react-query": "^5.56.2",
-    "@vercel/kv": "^1.0.1",
     "bignumber.js": "^9.1.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "fuse.js": "^7.0.0",
+    "ioredis": "^5.4.1",
     "jotai": "^2.10.0",
     "jotai-optics": "^0.4.0",
     "lodash": "^4.17.21",

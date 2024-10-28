@@ -12,11 +12,13 @@ import {
 } from "wagmi";
 import { polygon } from "wagmi/chains";
 
+import { clientConfig } from "@/config/client";
+
 const config = createConfig({
   chains: [polygon],
   ssr: true,
   transports: {
-    [polygon.id]: http(process.env.POLYGON_RPC),
+    [polygon.id]: http(clientConfig.polygonRpcUrl),
   },
   storage: createStorage({
     storage: cookieStorage,
