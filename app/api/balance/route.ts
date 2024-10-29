@@ -3,7 +3,6 @@ import { keyBy } from "lodash";
 import { Address, isAddress } from "viem";
 import { z } from "zod";
 
-import { assets } from "@/lib/assets";
 import { handleApiRequest } from "@/lib/validate";
 import { APIBalanceResponse } from "@/types/apis";
 
@@ -18,14 +17,18 @@ const schema = z.object({
 });
 
 const handleRequest = async (data: z.infer<typeof schema>) => {
-  const { accountAddress } = data;
-  const tokenService = factory.getTokenClient();
+  const { accountAddress, tokenAddresses } = data;
+  const tokenClient = factory.getTokenClient();
 
-  const balanceResp = await tokenService.getBalances({
-    tokenAddresses: assets.map((o) => o.address),
-    accountAddress: accountAddress as Address,
-  });
-  const assetMap = keyBy(assets, "address");
+  const [balanceResp, tokenResp] = await Promise.all([
+    tokenClient.getBalances({
+      tokenAddresses,
+      accountAddress: accountAddress as Address,
+    }),
+    tokenClient.getTokens({ addresses: tokenAddresses }),
+  ]);
+
+  const assetMap = keyBy(tokenResp, "address");
   const balances: Record<string, string> = {};
   Object.entries(balanceResp).forEach(([address, value]) => {
     const decimals = assetMap[address]?.decimals;

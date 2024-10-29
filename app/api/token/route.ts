@@ -2,7 +2,7 @@ import Fuse, { type Expression } from "fuse.js";
 import { isAddress } from "viem";
 import { z } from "zod";
 
-import { assets } from "@/lib/assets";
+import { assets } from "@/config/assets/assets";
 import { handleApiRequest } from "@/lib/validate";
 import { APITokensResponse } from "@/types/apis";
 

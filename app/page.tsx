@@ -1,5 +1,5 @@
+import { assets } from "@/config/assets/assets";
 import { isNativeToken } from "@/lib/address";
-import { assets } from "@/lib/assets";
 
 import { SwapContextProvider } from "./context";
 import { GithubButton } from "./github-button";
