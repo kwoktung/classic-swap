@@ -2,6 +2,8 @@ import qs from "qs";
 import { isAddress } from "viem";
 import { z } from "zod";
 
+import { serverConfig } from "@/config/server";
+
 export const zodEVMAddress = z
   .string()
   .transform((o) => o.toLowerCase())
@@ -50,6 +52,11 @@ export async function handleApiRequest<R, T extends z.ZodType>({
     const resp = await handler(validation.data);
     return Response.json(resp);
   } catch (e) {
-    return Response.json({ message: (e as Error).message }, { status: 500 });
+    const err = e as Error;
+    const resp: { message: string; stack?: string } = { message: err.message };
+    if (serverConfig.isDev) {
+      resp.stack = err.stack;
+    }
+    return Response.json(resp, { status: 500 });
   }
 }
