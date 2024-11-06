@@ -25,7 +25,7 @@ export async function POST(request: Request) {
   return handleApiRequest({
     schema,
     request,
+    method: "POST",
     handler: handleRequest,
-    validateBody: true,
   });
 }

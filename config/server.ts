@@ -1,8 +1,6 @@
-import { z } from "zod";
+import "server-only";
 
-if (typeof window !== "undefined") {
-  throw new Error("config/server.ts should not be imported on the frontend!");
-}
+import { z } from "zod";
 
 export const configSchema = z.object({
   polygonRpcUrl: z.string().url(),
