@@ -6,9 +6,12 @@ import { splitAtom } from "jotai/utils";
 import { useEffect } from "react";
 import type { Hash, TransactionReceipt } from "viem";
 import { usePublicClient } from "wagmi";
+import { getBalanceQueryKey } from "wagmi/query";
 
 import { Button } from "@/components/ui/button";
-import { pendingHistoryListAtom, refreshKeyAtom } from "@/state/atom";
+import { isNativeToken } from "@/lib/address";
+import { queryClient } from "@/lib/query-client";
+import { pendingHistoryListAtom } from "@/state/atom";
 import { HistoryItem } from "@/types/history";
 
 const HistoryObserve = ({ txAtom }: { txAtom: PrimitiveAtom<HistoryItem> }) => {
@@ -33,6 +36,24 @@ const HistoryObserve = ({ txAtom }: { txAtom: PrimitiveAtom<HistoryItem> }) => {
           ...tx,
           status: receipt.status === "success" ? "success" : "failed",
         });
+        queryClient.invalidateQueries({
+          queryKey: getBalanceQueryKey({
+            address: tx.address,
+            token: isNativeToken(tx.fromToken.address)
+              ? undefined
+              : tx.fromToken.address,
+            chainId: tx.chainId,
+          }),
+        });
+        queryClient.invalidateQueries({
+          queryKey: getBalanceQueryKey({
+            address: tx.address,
+            chainId: tx.chainId,
+            token: isNativeToken(tx.toToken.address)
+              ? undefined
+              : tx.toToken.address,
+          }),
+        });
       } else {
         const now = Date.now();
         if (now - tx.createAt > 1000 * 60 * 60 * 24) {
@@ -47,10 +68,6 @@ const HistoryObserve = ({ txAtom }: { txAtom: PrimitiveAtom<HistoryItem> }) => {
 
 export const HistoryIndicator = () => {
   const [txsAtom] = useAtom(splitAtom(pendingHistoryListAtom));
-  const [, setRefreshKey] = useAtom(refreshKeyAtom);
-  useEffect(() => {
-    return () => setRefreshKey(Date.now());
-  }, [txsAtom.length, setRefreshKey]);
   return (
     <>
       <Button>

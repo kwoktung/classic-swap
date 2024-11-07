@@ -35,7 +35,7 @@ export const formatExplorerUrl = ({
 }: {
   value: string;
   format: keyof ChainExplorerConfig;
-  chainId: string;
+  chainId: string | number;
 }) => {
   return `/explorer?format=${format}&value=${value}&chainId=${chainId}`;
 };

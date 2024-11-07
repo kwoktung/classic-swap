@@ -1,25 +1,22 @@
 "use client";
 
 import BigNumber from "bignumber.js";
-import { useAtomValue } from "jotai";
 import { useMemo } from "react";
 import { useAccount, useBalance } from "wagmi";
 
 import { useTokenPrice } from "@/hooks/use-token-price";
 import { isNativeToken } from "@/lib/address";
 import { toReadableNumber } from "@/lib/format";
-import { refreshKeyAtom } from "@/state/atom";
 
 import { useDeriveState, useSwapActions, useSwapState } from "./context";
 import { TokenInput } from "./token-input";
 
 export const SellSection = () => {
-  const refreshKey = useAtomValue(refreshKeyAtom);
   const { sellToken, amount } = useSwapState();
   const { setSellToken, setAmount } = useSwapActions();
   const account = useAccount();
+
   const balance = useBalance({
-    scopeKey: String(refreshKey),
     address: account.address,
     token: isNativeToken(sellToken?.address) ? undefined : sellToken?.address,
   });
@@ -62,13 +59,11 @@ export const SellSection = () => {
 };
 
 export const BuySection = () => {
-  const refreshKey = useAtomValue(refreshKeyAtom);
   const { buyToken } = useSwapState();
   const { setBuyToken } = useSwapActions();
   const { data, loading } = useDeriveState();
   const account = useAccount();
   const balance = useBalance({
-    scopeKey: String(refreshKey),
     address: account.address,
     token: isNativeToken(buyToken?.address) ? undefined : buyToken?.address,
   });

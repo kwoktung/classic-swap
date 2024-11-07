@@ -104,6 +104,7 @@ export const useSwapCallback = () => {
           value: BigInt(BigNumber(tx.value).toString()),
           data: tx.data,
         });
+        const chainId = await wallet.data.getChainId();
         const historyItem: HistoryItem = {
           fromToken: sellToken,
           fromAmount: amount,
@@ -114,7 +115,10 @@ export const useSwapCallback = () => {
           txHash,
           status: "pending",
           createAt: Date.now(),
+          address: wallet.data.account.address,
+          chainId,
         };
+
         addHistoryItem(historyItem);
         clear?.();
         toast({
@@ -126,7 +130,7 @@ export const useSwapCallback = () => {
                 href={formatExplorerUrl({
                   value: txHash,
                   format: "transaction",
-                  chainId: "137",
+                  chainId,
                 })}
               >
                 View

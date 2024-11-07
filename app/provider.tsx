@@ -13,6 +13,7 @@ import {
 import { polygon } from "wagmi/chains";
 
 import { clientConfig } from "@/config/client";
+import { queryClient } from "@/lib/query-client";
 
 const config = createConfig({
   chains: [polygon],
@@ -28,10 +29,6 @@ const config = createConfig({
 type Props = {
   children: React.ReactNode;
 };
-
-const queryClient = new QueryClient({
-  defaultOptions: { queries: { retry: 1 } },
-});
 
 export const Provider = ({ children }: Props) => {
   return (
