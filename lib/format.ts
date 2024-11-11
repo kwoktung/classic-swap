@@ -18,13 +18,15 @@ export const formatNumber = ({
 export const toReadableNumber = ({
   value,
   decimals,
+  decimalPlaces,
 }: {
   value: bigint | string;
   decimals: number;
+  decimalPlaces?: number;
 }) => {
   return formatNumber({
-    value: BigNumber(Number(value)).shiftedBy(-decimals).toFixed(),
-    decimalPlaces: 6,
+    value: BigNumber(value.toString()).shiftedBy(-decimals).toFixed(),
+    decimalPlaces,
   });
 };
 

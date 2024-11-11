@@ -213,16 +213,16 @@ export class UniswapV2Client implements LiquidityProvider {
   }
 
   private getPoolsPath(pools: UniswapV2Pool[], tokenIn: string): string[] {
+    const getPoolOut = (pool: UniswapV2Pool, tokenIn: string): string => {
+      if (pool.token0 !== tokenIn && pool.token1 !== tokenIn) {
+        throw new Error("failed to find out token out");
+      }
+      return pool.token0 === tokenIn ? pool.token1 : pool.token0;
+    };
     const paths = pools.reduce(
       (result, pool) => {
-        const current = result[0];
-        if (current !== pool.token0) {
-          return result.concat(pool.token0);
-        } else if (current !== pool.token1) {
-          return result.concat(pool.token1);
-        } else {
-          throw new Error("invalid path");
-        }
+        const current = result[result.length - 1];
+        return result.concat(getPoolOut(pool, current));
       },
       [tokenIn],
     );
