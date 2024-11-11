@@ -44,6 +44,19 @@ export const SellSection = () => {
     return;
   }, [sellToken, priceResp, amount]);
 
+  const onMax = useMemo(() => {
+    if (balance.data) {
+      return () =>
+        setAmount?.(
+          toReadableNumber({
+            value: balance.data.value,
+            decimals: balance.data.decimals,
+            decimalPlaces: balance.data.decimals,
+          }),
+        );
+    }
+  }, [balance.data, setAmount]);
+
   return (
     <TokenInput
       label="Sell"
@@ -52,7 +65,7 @@ export const SellSection = () => {
       amount={amount}
       onAmountChange={setAmount}
       balance={balanceParsed}
-      onMax={balanceParsed ? () => setAmount?.(balanceParsed) : undefined}
+      onMax={onMax}
       price={priceParsed}
     ></TokenInput>
   );

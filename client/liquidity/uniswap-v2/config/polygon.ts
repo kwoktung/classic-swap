@@ -9,12 +9,12 @@ const factoryConfig: UniswapV2FactoryConfig[] = [
     initCode:
       "0x96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f",
   },
-  {
-    protocol: "Ape",
-    factoryAddress: "0xCf083Be4164828f00cAE704EC15a36D711491284",
-    initCode:
-      "0x511f0f358fe530cda0859ec20becf391718fdf5a329be02f4c95361f3d6a42d8",
-  },
+  // {
+  //   protocol: "Ape",
+  //   factoryAddress: "0xCf083Be4164828f00cAE704EC15a36D711491284",
+  //   initCode:
+  //     "0x511f0f358fe530cda0859ec20becf391718fdf5a329be02f4c95361f3d6a42d8",
+  // },
   //   {
   //     protocol: "Dfyn",
   //     factoryAddress: "0xE7Fb3e833eFE5F9c441105EB65Ef8b261266423B",
@@ -45,6 +45,7 @@ export const polygonConfig: UniswapV2Config = {
     "0x1bfd67037b42cf73acf2047067bd4f2c47d9bfd6",
     "0x3c499c542cef5e3811e1192ce70d8cc03d5c3359",
   ],
-  routerAddress: "0xC0788A3aD43d79aa53B09c2EaCc313A787d1d607",
+  // routerAddress: "0xC0788A3aD43d79aa53B09c2EaCc313A787d1d607",
+  routerAddress: "0xa5e0829caced8ffdd4de3c43696c57f7d7a678ff",
   factoryConfig,
 };
